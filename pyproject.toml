@@ -56,10 +56,6 @@ dependencies = [
     "langfuse>=3.0",
     "mlflow>=2.20",
     "ragas>=0.3",
-    # The Hono + Convex + TanStack Start + CopilotKit web stack
-    "hono>=4.0",
-    "pyconvex>=0.5",
-    "copilotkit>=0.10",
     # The Pydantic v2 base models
     "pydantic>=2.10",
     # The dotenv + structlog
@@ -91,6 +87,7 @@ docs = [
     "mkdocstrings>=0.25",
     "mkdocstrings-python>=1.10",
 ]
+
 
 [project.urls]
 Homepage = "https://github.com/cianmacandeisigh/tuatha"
