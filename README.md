@@ -1,340 +1,194 @@
-# The British Isles Formative Assessment MMO
+# tuatha — the British Isles Formative Assessment MMO
 
-> **The canonical implementation of the**
-> **[`cianfhoghlaim-educational-mmo`](../../openspec/specs/cianfhoghlaim-educational-mmo/spec.md)**
-> **spec.** A self-contained independent sub-project at
-> `/Users/cianmacandeisigh/dev/kings_college_galway/tuatha/`
-> (the new top-level `tuatha/` dir; will become the independent
-> GitHub repo at `github.com/cianmacandeisigh/tuatha.git`).
+> A **provable, source-anchored** educational MMO for the
+> Republic of Ireland (NCCA) and the seven sister jurisdictions
+> (England, Scotland, Wales, Northern Ireland, Isle of Man,
+> plus the 5 safeguarding bodies). The game's structure is a
+> Hades-style rogue-lite: each **run** is a formative session in
+> one subject, each **chamber** is one question drawn from a real
+> SEC or equivalent past paper, each **boon** is a learning outcome
+> from the NCCA syllabus offered by a deity drawn from the
+> jurisdiction's mythology. Everything on screen can be **traced
+> back to its source** in one click — that is the project's core
+> invariant.
 
----
+This is the canonical implementation of the
+[`cianfhoghlaim-educational-mmo`](../../../../dev/cianfhoghlaim/openspec/specs/cianfhoghlaim-educational-mmo/spec.md)
+spec. It supersedes the deprecated `tuatha-platform` and
+`tuatha-mmo` skills. The legacy themes (Pent-Elemental Cosmology,
+Babylon.js 3D, SpacetimeDB v2, Crypteolas financial token, Anam
+Cara, Brown Ajah) are hard-archived; the technological choices
+(BAML extraction, DLT ingestion, Dagster asset graph, CocoIndex
+embedding, LiteLLM gateway, Cognee + Graphiti + LanceDB + Letta
+memory, Convex + Hono + TanStack Start + CopilotKit web stack)
+are kept.
 
-## What is this?
+## The Evidence Ladder — the project's core invariant
 
-**Tuatha** is the **British Isles Formative Assessment MMO** — an
-educational MMO that delivers **continuous formative feedback
-(not summative)** during quests, mapped to the
-**NCCA / CfE / CfW / CCEA / SQA / DESC** curriculum frameworks.
+**Nothing renders unless it can name its source.** Every visible
+artefact carries an unbroken chain back to an official document:
 
-The 8 NCCA Leaving Certificate subjects are the canonical content
-surface:
-
-- **mathematics**
-- **applied_mathematics**
-- **chemistry**
-- **geography**
-- **history**
-- **english**
-- **gaeilge** (taught in Irish; some content also in English)
-- **computer_science**
-
-The 3 educational agents form the academic + Celtic-language
-specialty layer on top of the 8 NCCA subjects:
-
-- `academic_history_agent` — the cross-subject + cross-jurisdiction
-  history research agent
-- `celtic_grammar_agent` — the Irish grammar specialist
-- `celtic_morphology_agent` — the Celtic morphology specialist
-
-The 4 BIEP hackathon features (from the
-`2026-08-21-biiep-hackathon-agentic-educational-system-v1/`
-change) form the agentic features:
-
-- `marking_grader` — the Adaptive Marking Grader
-- `adaptive_tutor` — the Adaptive Tutor Chat
-- `equivalency_generator` — the Cross-Jurisdiction Equivalency
-  Generator
-- `curriculum_change_sensor` — the Curriculum Change Detection
-  Sensor
-
-The 1 media_intel pipeline (from the
-`2026-08-23-tuatha-media-intel-gameplay-capture-research-v1/`
-change) provides the 5-class source registry + the 7-axis
-`MediaDescriptor` schema + the 10-tool ADK agent.
-
----
-
-## Quick start
-
-```bash
-# Install (uv-managed workspace)
-cd /Users/cianmacandeisigh/dev/kings_college_galway/tuatha/
-uv sync
-
-# Run the test suite
-uv run pytest
-
-# Run a single subject agent
-uv run python -c "
-import asyncio
-from tuatha.subjects.mathematics import math_agent
-async def main():
-    response = await math_agent.run('What is the NCCA LC Higher Level syllabus on complex numbers?')
-    print(response)
-asyncio.run(main())
-"
-
-# Run the 6 quality gates
-openspec validate --all --strict
-mise run lint:registry
-ruff check
-```
-
----
-
-## The 6 quality gates
-
-```bash
-# G1: openspec validate --strict (this project's change)
-openspec validate $(grep -oP "2026-08-25-tuatha-british-isles-mmo-consolidation-v1" openspec/changes/*/proposal.md 2>/dev/null | head -1) --strict
-
-# G2: openspec validate --all --strict (the full platform)
-openspec validate --all --strict
-
-# G3: mise run lint:registry (0 hardcoded model strings)
-mise run lint:registry
-
-# G4: ruff check (Python linting)
-ruff check
-
-# G5: mypy (Python typechecking)
-uv run mypy tuatha/
-
-# G6: Python import (no circular import)
-uv run python -c "
-from tuatha import (
-    math_agent, appm_agent, chem_agent, comp_agent,
-    engl_agent, gael_agent, geog_agent, hist_agent,
-    academic_history_agent, celtic_grammar_agent, celtic_morphology_agent,
-    marking_grader_agent, adaptive_tutor_agent, equivalency_generator_agent, curriculum_change_sensor_agent,
-    media_descriptor_agent,
-    TuathaOrchestrator, CianfhoghlaimOperator,
-)
-print('G6 PASS')
-"
-```
-
----
-
-## The 8 NCCA subject agents
-
-Each subject has a dedicated ADK agent in `tuatha/subjects/`:
-
-- `tuatha/subjects/mathematics.py` — the Mathematics agent
-- `tuatha/subjects/applied_mathematics.py` — the Applied Mathematics agent
-- `tuatha/subjects/chemistry.py` — the Chemistry agent
-- `tuatha/subjects/geography.py` — the Geography agent
-- `tuatha/subjects/history.py` — the History agent
-- `tuatha/subjects/english.py` — the English agent
-- `tuatha/subjects/gaeilge.py` — the Gaeilge agent (the bilingual EN/GA surface)
-- `tuatha/subjects/computer_science.py` — the Computer Science agent
-
-Each subject has 5 per-subject tools in `tuatha/tools/`:
-
-- `<subject>_syllabus_lookup.py`
-- `<subject>_past_paper_lookup.py`
-- `<subject>_marking_scheme_lookup.py`
-- `<subject>_formative_item_generate.py`
-- `<subject>_response_score.py`
-
----
-
-## The 3 educational agents
-
-- `tuatha/agents/educational/academic_history_agent.py`
-- `tuatha/agents/educational/celtic_grammar_agent.py`
-- `tuatha/agents/educational/celtic_morphology_agent.py`
-
----
-
-## The 4 BIEP hackathon features
-
-- `tuatha/agents/hackathon/marking_grader.py`
-- `tuatha/agents/hackathon/adaptive_tutor.py`
-- `tuatha/agents/hackathon/equivalency_generator.py`
-- `tuatha/agents/hackathon/curriculum_change_sensor.py`
-
----
-
-## The 1 media_intel pipeline
-
-- `tuatha/agents/media_intel/{__init__,records,classifier,explorer,media_descriptor_agent}.py`
-
-The 10-tool ADK `media_descriptor_agent` orchestrates the 5
-per-medium BAML extractor functions (comic / prose / animation /
-gameplay / official_document) + the 5 corpus introspection
-tools (list_sources / list_descriptors_by_class /
-summarise_corpus / compare_class_consistency /
-search_descriptors).
-
-The 5-class source registry:
-- **A — Comics**: the Jonathan Hickman Marvel run
-- **B — Prose**: The Wheel of Time (the 0-pixel control)
-- **C — Animation**: Avatar: The Last Airbender + The Legend of
-  Korra + the Aang-film continuity
-- **D — Games**: Hades 1 + 2 + World of Warcraft + Golden Sun +
-  Pokémon
-- **E — Official**: 36 official records across 3 government
-  sub-buckets (UK + Éire + Crown Dependencies) + the 4 BIEP
-  hackathon features
-
-The 9 Celtic-history stub sources (gated for the downstream
-theming change):
-- Tuatha Dé Danann + Irish mythology + Celtic mythology +
-  Celtic law + Brehon law + Aran Islands + Isle of Skye +
-  Isle of Man + Dyfed
-
----
-
-## The tech stack
-
-| Layer | Tech | Surface |
+| Rung | Field | Produced by |
 |:--|:--|:--|
-| Local LLM | LiteLLM gateway + minimax-m3 (the canonical 7-tier fallback) | `tuatha/config.py` |
-| OCR / VLM | qwen3-vl-8b + gemma-4-26B-A4B + molmo2-8b + olmocr-2-7B | the 5 per-medium extractors |
-| Agent fleet | Google ADK (the 12-agent fleet pattern) | `tuatha/agents/` |
-| BAML extraction | BAML 0.210 | `tuatha/baml/` |
-| Memory stack | Cognee + Graphiti + LanceDB + Letta | `tuatha/config.py` + `tuatha/agents/educational/` |
-| Pipeline stack | DLT + Dagster + CocoIndex | `tuatha/dlt/`, `tuatha/dagster/`, `tuatha/cocoindex/` |
-| Web stack | TanStack Start + Convex + Hono + CopilotKit | `tuatha/web/` |
-| Observability | Langfuse + MLflow + RAGAS + Logfire + structlog | `tuatha/observability/` |
-| Credentials | The badges system (replaces the legacy Crypteolas financial token) | `tuatha/badges/` |
-| CI | GitHub Actions + Dagger | `.github/workflows/ci.yml` + `tuatha/ci/` |
+| **1. Document** | `source_url`, `sha256`, `fetched_at`, `licence`, `rights_holder` | `tuatha/sources/official_doc_fetcher.py` |
+| **2. Location** | `page`, `bbox`, `has_text_layer`, `fonts` | `tuatha/sources/pdf_page_metadata.py` |
+| **3. Extraction** | `baml_function`, `prompt_version`, `confidence`, `evidence_spans` | BAML + Langfuse-resolved prompts |
+| **4. Evaluation** | RAGAS faithfulness / relevancy / recall / precision + `passed_threshold` | `tuatha/eval/ragas_evaluator.py` |
+| **5. Anchor** | Merkle root over rungs 1–4 | `tuatha/contracts/CredAnchor.sol` + `tuatha/badges/anchor.py` |
 
----
+Sub-threshold output is **quarantined, never published**. Badges
+mint only when rung 5 is complete.
 
-## The themes this project DROPS (the legacy theming)
+## Hades / Hades 2 → tuatha
 
-| Dropped theme | Why |
-|:--|:--|
-| ~~Pent-Elemental Cosmology~~ (5 realms: Spirit / Water / Fire / Earth / Air) | The cianfhoghlaim-educational-mmo spec says this design "did not land" |
-| ~~Babylon.js 3D~~ game front-end | Replaced with the TanStack Start 2D client |
-| ~~SpacetimeDB v2~~ game engine backend | Replaced with Convex + Hono + Dagster + DuckLake |
-| ~~Crypteolas financial token~~ | Replaced with the educational-credential badge system |
-| ~~Anam Cara~~ soul friend mechanic | Replaced with the 4 BIEP hackathon features |
-| ~~Brown Ajah~~ theming | The 8 NCCA subject ↔ Tuatha Dé deity mapping is preserved as `tuatha/subjects/character.py` but the "Brown Ajah" name is dropped |
+| Game | tuatha | Provenance rung |
+|:--|:--|:--|
+| A run | one formative session in one subject | — |
+| Chamber | one question | SEC paper, page + sha256 |
+| Door showing its reward | pick the next chamber by the LO it trains | LO code from the NCCA syllabus |
+| Boon from a god | a technique/scaffold tied to that LO, granted by a deity | deity cited to mythology corpus; LO cited to syllabus page |
+| Pantheon | per-jurisdiction — Tuatha Dé Danann (IE/NCCA), Mabinogi incl. Gwydion (Wales/WJEC), Ulster Cycle (NI/CCEA), Manannán mac Lir (IoM), Scottish myth (SQA) | Wikipedia + Dúchas + Logainm |
+| Heat / Pact of Punishment | difficulty — which marking-scheme band you're targeting, timed, hints off | marking-scheme grade bands |
+| Death → the House | end of run → mastery review | RAGAS + score trace |
+| Mirror of Night | persistent per-LO mastery across runs | `tuatha_player_progress` |
+| Keepsakes | repeat encounters unlock deeper lore *and* deeper subject content | lore ledger |
+| The escape attempt | a full past-paper section under exam conditions | SEC paper |
+| Prophecies fulfilled | badges minted **only on a complete evidence chain** | `CredAnchor.sol` Merkle anchor |
 
-The archive of these references lives at `tuatha/old/`
-(per the consolidation change).
-
----
-
-## The Celtic MMO design itself is NOT in this change
-
-The Celtic MMO design — which elements to use, what the boons
-look like, the 4+1 element binding, the sub-nation mapping
-(Wales+England combined, etc.), the anam currency, the
-anamcara NFT familiar mechanic, the 2D particle renderer
-choice, the iOS delivery vehicle — is a **downstream theming
-change** gated on this corpus being populated.
-
-The 7-axis `MediaDescriptor` schema is what feeds that future
-design. Until the corpus is populated, the design has no
-factual basis.
-
----
-
-## The package layout
+## Repository layout (this repo only — the build target)
 
 ```
-tuatha/
-├── README.md                          # this file
-├── AGENTS.md                          # the routing doc (developer quick-reference)
-├── DEVELOPMENT.md                     # the how-to-add-an-agent doc
-├── pyproject.toml                     # the package meta (uv-managed)
-├── mise.toml                          # the mise task namespace
-├── LICENSE                            # MIT
-├── docker-compose.yml                 # the local-dev stack
-├── docs/                              # the 4 canonical docs
-├── tests/                             # the 4 test files
-├── openspec/                          # the project-local openspec
-├── .devcontainer/
-├── .github/workflows/ci.yml
-├── .gitignore
-├── .dockerignore
-├── tuatha/                            # the canonical Python sub-namespace
-│   ├── __init__.py                    # the re-export surface
-│   ├── config.py                       # LiteLLM + Langfuse + Cognee + Letta + BAML clients
-│   ├── routing.py                      # the SubjectAgentWiring factory
-│   ├── orchestrator.py                 # the TuathaOrchestrator
-│   ├── operator.py                     # the CianfhoghlaimOperator
-│   ├── cross_subject.py                # the cross-subject specialist
-│   ├── workflows.py                    # the 4 per-subject workflow handlers
-│   ├── callbacks/                      # the canonical callbacks
-│   ├── mcp_server/                     # the MCP server
-│   ├── subjects/                       # the 8 NCCA subject agents
-│   ├── tools/                          # the 40 per-subject tools
+tuatha/                              # GitHub: github.com/cianfhoghlaim/tuatha
+├── README.md                        # this file
+├── LICENSE.md                       # BUSL-1.1 (CIANCHOSAINT edition)
+├── AGENTS.md                        # developer quick-reference
+├── DEVELOPMENT.md                   # how-to-add-a-subject
+├── pyproject.toml                   # uv-managed
+├── mise.toml                        # task namespace
+├── .gitignore .devcontainer/ .github/workflows/ci.yml
+├── sources/                         # the official corpus spine (Phase 1)
+│   ├── corpus/                      # 148 NCCA PDFs (path-only, content local)
+│   ├── official_doc_fetcher.py      # rung 1 — 8 jurisdictions + 5 safeguarding bodies
+│   ├── pdf_page_metadata.py         # rung 2 — sha256 + page + bbox + fonts
+│   ├── registry.py                  # operator-facing per-source catalogue
+│   ├── policy_index.py              # per-source context-aware policy view
+│   └── mythology/
+│       └── celtic_mythology.py      # 467-line lancedb + pydantic (the real tool, not the stub)
+├── tuatha/
+│   ├── subjects/                    # the 8 NCCA subject agents
+│   ├── tools/                       # 40 per-subject tools
 │   ├── agents/
-│   │   ├── educational/                # the 3 educational agents
-│   │   ├── media_intel/                # the 10-tool ADK agent
-│   │   └── hackathon/                   # the 4 BIEP hackathon features
-│   ├── baml/                           # the BAML surface
-│   ├── dlt/                            # the DLT sources
-│   ├── dagster/                        # the Dagster asset groups
-│   ├── cocoindex/                      # the CocoIndex v1 Apps
-│   ├── notebooks/                      # the marimo notebooks
-│   ├── badges/                         # the credential system
-│   └── ci/                             # the CI layer
-└── tuatha/old/                         # the archive
-    ├── prior_top_level_tuasha/         # (preserved for reference)
-    ├── scattered_agents_tuasha/        # (preserved for reference)
-    └── legacy_theming/                 # the hard-archived legacy theming
+│   │   ├── media_intel/             # the 10-tool descriptor
+│   │   ├── educational/             # the 3 educational agents
+│   │   ├── hackathon/               # the 4 BIEP hackathon features
+│   │   ├── adk/                     # un-archived ADK layer (tuatha_root_agent, mythology_narrator_agent, celtic_tutor_agent, curriculum_comparison_agent)
+│   │   │                            # + 2 tools (mythology_query, player_progress) + 2 API routes (game_state, mythology)
+│   │   └── api/routes/              # Hono API surface
+│   ├── baml/                        # the BAML contracts (re-extracted from cianfhoghlaim)
+│   │   ├── celtic_mythology.baml    # the real Gwydion/Mabinogi/LO/Dúchas contract
+│   │   ├── lc_extraction_ie.baml     # the real NCCA LC extraction
+│   │   ├── clients.baml
+│   │   └── .baml_client/             # auto-generated stubs (regen via baml-cli when available)
+│   ├── dlt/                         # 8 sources × 5 categories = 40 DLT sources (Ireland-first depth)
+│   ├── dagster/                     # 3 asset groups (per_subject + educational + hackathon)
+│   ├── cocoindex/                   # 4 BGE-M3 embedder apps
+│   ├── notebooks/                   # marimo operator proofs
+│   ├── badges/                      # Merkle-anchored credential ledger
+│   ├── contracts/                   # CredAnchor.sol + AchievementToken.sol + foundry + tests
+│   ├── asset_generation/            # the 6 real Python files (un-archived from cianfhoghlaim)
+│   ├── geospatial/                  # the 9 real files (LSOA / Data Zones / SOA / Small Areas)
+│   ├── callbacks/                   # citation + audit callbacks
+│   ├── mcp_server/                  # MCP server surface
+│   ├── ci/                          # Dagger pipeline
+│   ├── docs/                        # ARCHITECTURE + AGENT_REGISTRY + THEMING + BIOGRAPHY
+│   └── tests/                       # 4 test files (pytest)
+├── openspec/
+│   ├── changes/2026-08-25-tuatha-british-isles-mmo-consolidation-v1/
+│   └── specs/tuatha-british-isles-mmo/
+├── docs/                            # ARCHITECTURE + AGENT_REGISTRY + THEMING + BIOGRAPHY
+├── tests/                           # 4 test files
+├── .venv/                           # the resolved environment
+└── old/                             # the hard-archive (preserved, read-only)
+    ├── prior_top_level_tuasha/      # the 12-item pre-skeleton
+    ├── scattered_agents_tuasha/     # the 61-file scattered state
+    └── legacy_theming/              # Babylon.js / SpacetimeDB / Pent-Elemental
 ```
+
+## 218 real files (counted 2026-08-24)
+
+- 148 NCCA / SEC PDFs (path-only, content local — not in the repo)
+- 11 badge-ledger Python files
+- 4 Solidity contracts + Foundry.toml + tests
+- 6 asset-generation Python files
+- 9 geospatial-boundary Python files
+- 22 ADK agent Python files
+- 13 BAML contract files + 3 BAML client stubs
+- 4 test files + 4 doc files + 2 CI files + 3 dev-container files
+
+## Where the real code came from (the audit trail)
+
+This repository was assembled from real (not stub) code:
+
+- `sources/official_doc_fetcher.py` + `pdf_page_metadata.py` ← from `gemini_hackathon` (the live public repo)
+- `sources/mythology/celtic_mythology.py` ← the real 467-line lancedb + pydantic tool
+- `tuatha/agents/adk/*.py` ← the real ADK layer in `cianfhoghlaim/agents/adk/`
+- `tuatha/asset_generation/fibo/` + `invoke.py` ← the real files buried as legacy theming
+- `tuatha/geospatial/` ← the real LSOA / Data Zones / SOA / Small Areas boundaries
+- `tuatha/badges/` + `tuatha/contracts/` ← the real Merkle-anchored credential layer
+- The 148 NCCA / SEC PDFs ← the real corpus at `cianfhoghlaim/leaving_certificate/`
+
+The previous session's "288 file scaffolding" with 40 inert DLT
+sources + stub BAML contracts + 36 stub tools has been **replaced**
+with this real-code foundation. The DLT sources are being rewritten
+in Phase 1 against the real document spine (rung 1) and the real
+PDF metadata (rung 2).
+
+## The 5 provability gates (W1 → W8 will be checked against these)
+
+| Gate | Check |
+|:--|:--|
+| **G7 provenance** | no published row lacking `source_url` + `sha256` + `page` |
+| **G8 eval** | RAGAS faithfulness ≥ threshold on a golden set, else build fails |
+| **G9 no-inert** | no DLT resource yields empty; no Dagster asset is a no-op |
+| **G10 theming** | every palette carries a provenance block resolving to a fetched document |
+| **G11 lore** | every lore artefact has ≥1 citation resolving to a real source row |
+| **G12 licence** | no source PDF committed; derived metadata only (public repo) |
+
+## The workstreams (sequenced)
+
+| Phase | Work | Exit condition |
+|:--|:--|:--|
+| **0** | Relocate, de-dup, relicense (BUSL-1.1), un-archive the buried real files | **this commit** |
+| **1** | W1 spine + kill the 40 inert sources | **G9 goes green**; real NCCA/SEC rows |
+| **2** | W2 eval/prompts + W3 theming | G7/G10 green |
+| **3** | W5 assessment + W4 lore | one subject end-to-end through all 5 rungs; G8/G11 green |
+| **4** | W6 assets + W7 web + W8 fleet/credentials | a playable run where every element is inspectable |
+| **5** | openspec specs, gate wiring, docs | docs describe only what exists |
+
+## Cross-repo surface
+
+- The monorepo `cianfhoghlaim` is at `~/dev/cianfhoghlaim/`
+  (branch `token-plan-lc-pipeline-2026-08`); the
+  `tuatha-british-isles-mmo-consolidation-v1` change lives
+  there and references this repo as the implementation surface.
+- The sibling `gemini_hackathon` (at `~/dev/gemini_hackathon/`)
+  is **NOT cross-referenced** per the user's decision; this repo
+  independently implements the theming + asset-gen + fleet
+  patterns it was modelled on.
+- The sibling `cianchosaint` + `ciandlithe` provide the
+  `ragas-eval-pipeline` + `langfuse-prompt-management` reference
+  design patterns that the W2 provable-extraction work will port.
+
+## Licence
+
+This repository is licensed under the **Business Source License
+1.1 (CIANCHOSAINT edition)**, matching `cianchosaint` and
+`ciandlithe`. The Change Date is 2029-08-25; on that date the
+licence converts to the permissive Apache-2.0 form. No source
+PDFs are committed to the repository; only derived metadata
+(sha256, page references, learning outcome codes) per G12.
 
 ---
 
-## The cross-repo surface
-
-The `tuatha/` project lives at
-`/Users/cianmacandeisigh/dev/kings_college_galway/tuatha/` —
-a sub-dir of the parent `kings_college_galway/` (the cianfhoghlaim
-+ leabharlann + bonneagar monorepo). The new project is designed
-to become its own independent GitHub repo at
-`github.com/cianmacandeisigh/tuatha.git` (per the 2026-08-25
-consolidation change).
-
-The cross-repo references are:
-- `agents/agent_registry.py:AGENT_REGISTRY` — the
-  `media_descriptor_agent` entry's `module_path` is
-  `tuatha.agents.media_intel.media_descriptor_agent` (re-routed
-  from the prior `agents.meaisinfhoghlaim.media_intel.*` location)
-- The back-compat shim at
-  `agents/meaisinfhoghlaim/media_intel/__init__.py` re-exports
-  the canonical symbols from the new location
-- The sibling repos `kings_college_galway/leabharlann/` +
-  `kings_college_galway/bonneagar/` are unchanged
-
----
-
-## License
-
-MIT (permissive).
-
-```
-MIT License
-
-Copyright (c) 2026 Cian Mac an Déisigh Uí Liatháin
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
----
-
-**Last updated**: 2026-08-25.
-**Owner**: Build agent (the new tuatha/ sub-project).
+**Last updated**: 2026-08-24.
+**Owner**: Build agent (the British Isles Formative Assessment MMO project).
