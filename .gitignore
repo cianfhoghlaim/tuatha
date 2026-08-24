@@ -1,3 +1,7 @@
+# Phase 0 fix: G12 — no source PDFs in the public repo
+sources/corpus/**/*.pdf
+# Auto-generated BAML client
+**/.baml_client/
 # Python
 __pycache__/
 *.py[cod]
@@ -8,28 +12,20 @@ build/
 dist/
 .eggs/
 *.egg-info/
-
 # Virtual env
 .venv/
 venv/
 env/
-
 # IDE
 .vscode/
 .idea/
 .DS_Store
-
 # Test
 .pytest_cache/
 .coverage
 htmlcov/
-
 # Notebook
 .ipynb_checkpoints/
-
-# Test
-.tox/
-
 # Local
 .env
 .env.local
