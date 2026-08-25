@@ -1,29 +1,13 @@
-"""tuatha.dlt.syllabus.mathematics — the syllabus DLT source for mathematics.
+"""tuatha.dlt.syllabus.mathematics — thin re-export of the per_subject template.
 
-Auto-generated from the canonical DLT template. Reads from
-the BAML-extracted JSON records (per the qpack_mathematics.baml +
-the syllabus BAML function) and emits the typed records to
-the oideachais_lc_mathematics DuckLake schema.
+Replaces the inert stub (yield {}) with a real DLT source
+that reads from the rung-1 DuckDB table.
 """
 from __future__ import annotations
 
-import datetime
-import hashlib
-import os
-from collections.abc import Iterator
-from typing import Any
+from functools import partial
 
-import dlt
-
-from tuatha.config import TuathaConfig
+from tuatha.dlt.per_subject import ncca_syllabus_source
 
 
-@dlt.resource(
-    name=f"mathematics_syllabus",
-    write_disposition="merge",
-    primary_key=("ncca_code", "year", "level"),
-)
-def mathematics_syllabus_source() -> Iterator[dict[str, Any]]:
-    """The canonical DLT source for mathematics syllabus."""
-    config = TuathaConfig.from_env()
-    yield {}
+mathematics_syllabus_source = partial(ncca_syllabus_source, subject="mathematics")

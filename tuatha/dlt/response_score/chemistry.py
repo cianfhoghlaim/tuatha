@@ -1,29 +1,13 @@
-"""tuatha.dlt.response_score.chemistry — the response score DLT source for chemistry.
+"""tuatha.dlt.response_score.chemistry — thin re-export of the per_subject template.
 
-Auto-generated from the canonical DLT template. Reads from
-the BAML-extracted JSON records (per the qpack_chemistry.baml +
-the response_score BAML function) and emits the typed records to
-the oideachais_lc_chemistry DuckLake schema.
+Replaces the inert stub (yield {}) with a real DLT source
+that reads from the rung-1 DuckDB table.
 """
 from __future__ import annotations
 
-import datetime
-import hashlib
-import os
-from collections.abc import Iterator
-from typing import Any
+from functools import partial
 
-import dlt
-
-from tuatha.config import TuathaConfig
+from tuatha.dlt.per_subject import ncca_response_score_source
 
 
-@dlt.resource(
-    name=f"chemistry_response_score",
-    write_disposition="merge",
-    primary_key=("ncca_code", "year", "level"),
-)
-def chemistry_response_score_source() -> Iterator[dict[str, Any]]:
-    """The canonical DLT source for chemistry response_score."""
-    config = TuathaConfig.from_env()
-    yield {}
+chemistry_response_score_source = partial(ncca_response_score_source, subject="chemistry")

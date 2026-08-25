@@ -1,0 +1,30 @@
+{
+  "schema": "tuatha/sources/manifest.schema.json",
+  "version": "0.1.0",
+  "description": "Provenance manifest for the Ireland-first rung-1 source layer. Per G7 every row has source_url + sha256 + page + language + subject; per G12 no source PDFs are committed (only derived metadata).",
+  "licence": "OGL-3.0",
+  "change_date": "2029-08-25",
+  "spine": {
+    "rung_1": "tuatha.dlt.per_subject._query_official_documents (reads from sources/duckdb/tuatha_official_documents.duckdb, populated by sources/ireland_fetcher.py)",
+    "rung_2": "pdf_page_metadata (per-page sha256 + first_page_text + has_text_layer)",
+    "rung_3": "DLT resources in tuatha/dlt/{category}/{subject}.py (the 70 re-exports)",
+    "rung_4": "BAML extraction (planned Phase 2)",
+    "rung_5": "Merkle anchor in tuatha/contracts/CredAnchor.sol"
+  },
+  "subjects": [
+    "accounting", "applied_mathematics", "biology", "business", "chemistry",
+    "computer_science", "english", "french", "gaeilge", "geography",
+    "history", "irish", "mathematics", "physics"
+  ],
+  "categories": [
+    "syllabus", "past_paper", "marking_scheme",
+    "formative_item", "response_score"
+  ],
+  "ingest_steps": [
+    "Set TUATHA_CORPUS_ROOT to the parent corpus path (e.g. ~/dev/cianchosaint/leaving_certificate)",
+    "Run python3 sources/ireland_fetcher.py → populates sources/duckdb/tuatha_official_documents.duckdb with rung-1 + rung-2 rows",
+    "Each tuatha.dlt.{cat}.{sub}.ncca_{cat}_source generator now emits real rows from the DuckDB",
+    "tuatha/dlt/per_subject.py is the canonical 5-resource template"
+  ],
+  "what_this_repo_publishes": "Only derived metadata: sha256, page references, learning outcome codes, BAML extraction results, RAGAS scores. NEVER the source PDFs (G12)."
+}

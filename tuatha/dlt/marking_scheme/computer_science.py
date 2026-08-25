@@ -1,29 +1,13 @@
-"""tuatha.dlt.marking_scheme.computer_science — the marking scheme DLT source for computer_science.
+"""tuatha.dlt.marking_scheme.computer_science — thin re-export of the per_subject template.
 
-Auto-generated from the canonical DLT template. Reads from
-the BAML-extracted JSON records (per the qpack_computer_science.baml +
-the marking_scheme BAML function) and emits the typed records to
-the oideachais_lc_computer_science DuckLake schema.
+Replaces the inert stub (yield {}) with a real DLT source
+that reads from the rung-1 DuckDB table.
 """
 from __future__ import annotations
 
-import datetime
-import hashlib
-import os
-from collections.abc import Iterator
-from typing import Any
+from functools import partial
 
-import dlt
-
-from tuatha.config import TuathaConfig
+from tuatha.dlt.per_subject import ncca_marking_scheme_source
 
 
-@dlt.resource(
-    name=f"computer_science_marking_scheme",
-    write_disposition="merge",
-    primary_key=("ncca_code", "year", "level"),
-)
-def computer_science_marking_scheme_source() -> Iterator[dict[str, Any]]:
-    """The canonical DLT source for computer_science marking_scheme."""
-    config = TuathaConfig.from_env()
-    yield {}
+computer_science_marking_scheme_source = partial(ncca_marking_scheme_source, subject="computer_science")

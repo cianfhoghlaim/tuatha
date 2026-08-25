@@ -1,29 +1,13 @@
-"""tuatha.dlt.formative_item.gaeilge — the formative item DLT source for gaeilge.
+"""tuatha.dlt.formative_item.gaeilge — thin re-export of the per_subject template.
 
-Auto-generated from the canonical DLT template. Reads from
-the BAML-extracted JSON records (per the qpack_gaeilge.baml +
-the formative_item BAML function) and emits the typed records to
-the oideachais_lc_gaeilge DuckLake schema.
+Replaces the inert stub (yield {}) with a real DLT source
+that reads from the rung-1 DuckDB table.
 """
 from __future__ import annotations
 
-import datetime
-import hashlib
-import os
-from collections.abc import Iterator
-from typing import Any
+from functools import partial
 
-import dlt
-
-from tuatha.config import TuathaConfig
+from tuatha.dlt.per_subject import ncca_formative_item_source
 
 
-@dlt.resource(
-    name=f"gaeilge_formative_item",
-    write_disposition="merge",
-    primary_key=("ncca_code", "year", "level"),
-)
-def gaeilge_formative_item_source() -> Iterator[dict[str, Any]]:
-    """The canonical DLT source for gaeilge formative_item."""
-    config = TuathaConfig.from_env()
-    yield {}
+gaeilge_formative_item_source = partial(ncca_formative_item_source, subject="gaeilge")

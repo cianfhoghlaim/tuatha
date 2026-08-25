@@ -1,29 +1,13 @@
-"""tuatha.dlt.past_paper.applied_mathematics — the past paper DLT source for applied_mathematics.
+"""tuatha.dlt.past_paper.applied_mathematics — thin re-export of the per_subject template.
 
-Auto-generated from the canonical DLT template. Reads from
-the BAML-extracted JSON records (per the qpack_applied_mathematics.baml +
-the past_paper BAML function) and emits the typed records to
-the oideachais_lc_applied_mathematics DuckLake schema.
+Replaces the inert stub (yield {}) with a real DLT source
+that reads from the rung-1 DuckDB table.
 """
 from __future__ import annotations
 
-import datetime
-import hashlib
-import os
-from collections.abc import Iterator
-from typing import Any
+from functools import partial
 
-import dlt
-
-from tuatha.config import TuathaConfig
+from tuatha.dlt.per_subject import ncca_past_paper_source
 
 
-@dlt.resource(
-    name=f"applied_mathematics_past_paper",
-    write_disposition="merge",
-    primary_key=("ncca_code", "year", "level"),
-)
-def applied_mathematics_past_paper_source() -> Iterator[dict[str, Any]]:
-    """The canonical DLT source for applied_mathematics past_paper."""
-    config = TuathaConfig.from_env()
-    yield {}
+applied_mathematics_past_paper_source = partial(ncca_past_paper_source, subject="applied_mathematics")
