@@ -33,6 +33,59 @@ except ImportError:
     get_optimal_for_m4 = None
 
 
+# ── Phase 1 P1+P7: the 3-layer asset-generation facade ──────────
+# Re-export the new image_gen + vlm surfaces (the FIBO surface is
+# the existing `education_fibo` above). These imports are
+# deliberately wrapped in try/except so this module keeps working
+# in envs that haven't installed the new subpackages yet
+# (graceful-degradation per the centralized-model-registry
+# contract).
+try:
+    from tuatha.asset_generation.image_gen import (  # type: ignore[import-not-found]
+        DEFAULT_IMAGE_GEN_ROLE,
+        ImageGenRouter,
+        STUB_MODEL_KEY,
+        StubImageGenBackend,
+        UnslothClient,
+        UnslothClientError,
+        UnslothImageGenBackend,
+    )
+    IMAGE_GEN_AVAILABLE = True
+except ImportError:
+    IMAGE_GEN_AVAILABLE = False
+    ImageGenRouter = None  # type: ignore[assignment, misc]
+    StubImageGenBackend = None  # type: ignore[assignment, misc]
+    UnslothImageGenBackend = None  # type: ignore[assignment, misc]
+    UnslothClient = None  # type: ignore[assignment, misc]
+    UnslothClientError = None  # type: ignore[assignment, misc]
+    DEFAULT_IMAGE_GEN_ROLE = "fibo"  # type: ignore[assignment, misc]
+    STUB_MODEL_KEY = "stub/image/unknown"  # type: ignore[assignment, misc]
+
+
+try:
+    from tuatha.asset_generation.vlm import (  # type: ignore[import-not-found]
+        DEFAULT_VLM_ROLE,
+        DIAGRAM_POINTING_ROLE,
+        PAGE_IMAGE_ROLE,
+        SPECIALIST_VLM_ROLE,
+        STUB_VLM_MODEL_KEY,
+        StubVlmBackend,
+        UnslothVlmBackend,
+        VlmRouter,
+    )
+    VLM_AVAILABLE = True
+except ImportError:
+    VLM_AVAILABLE = False
+    VlmRouter = None  # type: ignore[assignment, misc]
+    StubVlmBackend = None  # type: ignore[assignment, misc]
+    UnslothVlmBackend = None  # type: ignore[assignment, misc]
+    DEFAULT_VLM_ROLE = "default"  # type: ignore[assignment, misc]
+    DIAGRAM_POINTING_ROLE = "diagram_pointing"  # type: ignore[assignment, misc]
+    PAGE_IMAGE_ROLE = "page_image"  # type: ignore[assignment, misc]
+    SPECIALIST_VLM_ROLE = "specialist"  # type: ignore[assignment, misc]
+    STUB_VLM_MODEL_KEY = "stub/vlm/unknown"  # type: ignore[assignment, misc]
+
+
 # The 8 NCCA subjects
 NCCA_SUBJECTS = (
     "mathematics",
@@ -133,3 +186,41 @@ def select_optimal_vlm_model(task: str) -> dict[str, Any]:
         "task": task,
         "registry_entries": len(VISION_MODELS) if VISION_MODELS else 0,
     }
+
+
+# ── Phase 1 P1+P7: the 3-layer facade re-exports ────────────────
+# The 3 layers are: image_gen / fibo / vlm. Callers can use them
+# directly OR via the helper functions below. The existing 5 FIBO
+# functions (`generate_2d_sprite_atlas`, `generate_3d_mesh`, etc.)
+# are preserved verbatim above.
+
+__all__ = [
+    # Layer 1: image_gen (new)
+    "DEFAULT_IMAGE_GEN_ROLE",
+    "ImageGenRouter",
+    "IMAGE_GEN_AVAILABLE",
+    "STUB_MODEL_KEY",
+    "StubImageGenBackend",
+    "UnslothClient",
+    "UnslothClientError",
+    "UnslothImageGenBackend",
+    # Layer 2: fibo (existing)
+    "FIBO_AVAILABLE",
+    # Layer 3: vlm (new)
+    "DEFAULT_VLM_ROLE",
+    "DIAGRAM_POINTING_ROLE",
+    "PAGE_IMAGE_ROLE",
+    "SPECIALIST_VLM_ROLE",
+    "STUB_VLM_MODEL_KEY",
+    "StubVlmBackend",
+    "UnslothVlmBackend",
+    "VLM_AVAILABLE",
+    "VlmRouter",
+    # Existing public symbols
+    "NCCA_SUBJECTS",
+    "REGISTRY_AVAILABLE",
+    "generate_2d_sprite_atlas",
+    "generate_3d_mesh",
+    "generate_subkey_competency_emblem",
+    "select_optimal_vlm_model",
+]

@@ -5,10 +5,13 @@ pattern. BAML prefix: AppM.
 """
 from __future__ import annotations
 
+from typing import Any
+
 from google.adk.agents import LlmAgent
 from google.adk.tools import FunctionTool
 
 from ..config import TuathaConfig
+from ..observability import trace_agent
 from ..routing import build_wire
 from ..tools.applied_mathematics_formative_item_generate import generate_appm_item
 from ..tools.applied_mathematics_marking_scheme_lookup import lookup_appm_marking_scheme
@@ -33,6 +36,36 @@ appm_past_paper_lookup_tool = FunctionTool(func=lookup_appm_paper)
 appm_marking_scheme_lookup_tool = FunctionTool(func=lookup_appm_marking_scheme)
 appm_formative_item_generate_tool = FunctionTool(func=generate_appm_item)
 appm_response_score_tool = FunctionTool(func=score_appm_response)
+
+
+# Per-tool extraction wrappers emit the canonical
+# `agent.applied_mathematics.extract` Langfuse trace. The wrappers
+# delegate to the underlying tool function unchanged via
+# *args/**kwargs so they never break the existing function
+# signatures. The decorator is the only addition.
+@trace_agent("applied_mathematics")
+async def _appm_extract_syllabus(*args: Any, **kwargs: Any) -> Any:
+    return await lookup_appm_lo(*args, **kwargs)
+
+
+@trace_agent("applied_mathematics")
+async def _appm_extract_past_paper(*args: Any, **kwargs: Any) -> Any:
+    return await lookup_appm_paper(*args, **kwargs)
+
+
+@trace_agent("applied_mathematics")
+async def _appm_extract_marking_scheme(*args: Any, **kwargs: Any) -> Any:
+    return await lookup_appm_marking_scheme(*args, **kwargs)
+
+
+@trace_agent("applied_mathematics")
+async def _appm_extract_formative_item(*args: Any, **kwargs: Any) -> Any:
+    return await generate_appm_item(*args, **kwargs)
+
+
+@trace_agent("applied_mathematics")
+async def _appm_extract_response_score(*args: Any, **kwargs: Any) -> Any:
+    return await score_appm_response(*args, **kwargs)
 
 
 appm_agent = LlmAgent(

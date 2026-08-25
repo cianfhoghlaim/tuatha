@@ -9,10 +9,13 @@ query time.
 """
 from __future__ import annotations
 
+from typing import Any
+
 from google.adk.agents import LlmAgent
 from google.adk.tools import FunctionTool
 
 from ..config import TuathaConfig
+from ..observability import trace_agent
 from ..routing import build_wire
 from ..tools.gaeilge_formative_item_generate import generate_gael_item
 from ..tools.gaeilge_marking_scheme_lookup import lookup_gael_marking_scheme
@@ -37,6 +40,36 @@ gael_past_paper_lookup_tool = FunctionTool(func=lookup_gael_paper)
 gael_marking_scheme_lookup_tool = FunctionTool(func=lookup_gael_marking_scheme)
 gael_formative_item_generate_tool = FunctionTool(func=generate_gael_item)
 gael_response_score_tool = FunctionTool(func=score_gael_response)
+
+
+# Per-tool extraction wrappers emit the canonical
+# `agent.gaeilge.extract` Langfuse trace. The wrappers
+# delegate to the underlying tool function unchanged via
+# *args/**kwargs so they never break the existing function
+# signatures. The decorator is the only addition.
+@trace_agent("gaeilge")
+async def _gael_extract_syllabus(*args: Any, **kwargs: Any) -> Any:
+    return await lookup_gael_lo(*args, **kwargs)
+
+
+@trace_agent("gaeilge")
+async def _gael_extract_past_paper(*args: Any, **kwargs: Any) -> Any:
+    return await lookup_gael_paper(*args, **kwargs)
+
+
+@trace_agent("gaeilge")
+async def _gael_extract_marking_scheme(*args: Any, **kwargs: Any) -> Any:
+    return await lookup_gael_marking_scheme(*args, **kwargs)
+
+
+@trace_agent("gaeilge")
+async def _gael_extract_formative_item(*args: Any, **kwargs: Any) -> Any:
+    return await generate_gael_item(*args, **kwargs)
+
+
+@trace_agent("gaeilge")
+async def _gael_extract_response_score(*args: Any, **kwargs: Any) -> Any:
+    return await score_gael_response(*args, **kwargs)
 
 
 gael_agent = LlmAgent(

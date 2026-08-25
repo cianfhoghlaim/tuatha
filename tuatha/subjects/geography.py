@@ -4,10 +4,13 @@ One of 8 NCCA subject agents. BAML prefix: Geog.
 """
 from __future__ import annotations
 
+from typing import Any
+
 from google.adk.agents import LlmAgent
 from google.adk.tools import FunctionTool
 
 from ..config import TuathaConfig
+from ..observability import trace_agent
 from ..routing import build_wire
 from ..tools.geography_formative_item_generate import generate_geog_item
 from ..tools.geography_marking_scheme_lookup import lookup_geog_marking_scheme
@@ -32,6 +35,36 @@ geog_past_paper_lookup_tool = FunctionTool(func=lookup_geog_paper)
 geog_marking_scheme_lookup_tool = FunctionTool(func=lookup_geog_marking_scheme)
 geog_formative_item_generate_tool = FunctionTool(func=generate_geog_item)
 geog_response_score_tool = FunctionTool(func=score_geog_response)
+
+
+# Per-tool extraction wrappers emit the canonical
+# `agent.geography.extract` Langfuse trace. The wrappers
+# delegate to the underlying tool function unchanged via
+# *args/**kwargs so they never break the existing function
+# signatures. The decorator is the only addition.
+@trace_agent("geography")
+async def _geog_extract_syllabus(*args: Any, **kwargs: Any) -> Any:
+    return await lookup_geog_lo(*args, **kwargs)
+
+
+@trace_agent("geography")
+async def _geog_extract_past_paper(*args: Any, **kwargs: Any) -> Any:
+    return await lookup_geog_paper(*args, **kwargs)
+
+
+@trace_agent("geography")
+async def _geog_extract_marking_scheme(*args: Any, **kwargs: Any) -> Any:
+    return await lookup_geog_marking_scheme(*args, **kwargs)
+
+
+@trace_agent("geography")
+async def _geog_extract_formative_item(*args: Any, **kwargs: Any) -> Any:
+    return await generate_geog_item(*args, **kwargs)
+
+
+@trace_agent("geography")
+async def _geog_extract_response_score(*args: Any, **kwargs: Any) -> Any:
+    return await score_geog_response(*args, **kwargs)
 
 
 geog_agent = LlmAgent(

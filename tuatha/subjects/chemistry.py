@@ -4,10 +4,13 @@ One of 8 NCCA subject agents. BAML prefix: Chem.
 """
 from __future__ import annotations
 
+from typing import Any
+
 from google.adk.agents import LlmAgent
 from google.adk.tools import FunctionTool
 
 from ..config import TuathaConfig
+from ..observability import trace_agent
 from ..routing import build_wire
 from ..tools.chemistry_formative_item_generate import generate_chem_item
 from ..tools.chemistry_marking_scheme_lookup import lookup_chem_marking_scheme
@@ -32,6 +35,36 @@ chem_past_paper_lookup_tool = FunctionTool(func=lookup_chem_paper)
 chem_marking_scheme_lookup_tool = FunctionTool(func=lookup_chem_marking_scheme)
 chem_formative_item_generate_tool = FunctionTool(func=generate_chem_item)
 chem_response_score_tool = FunctionTool(func=score_chem_response)
+
+
+# Per-tool extraction wrappers emit the canonical
+# `agent.chemistry.extract` Langfuse trace. The wrappers
+# delegate to the underlying tool function unchanged via
+# *args/**kwargs so they never break the existing function
+# signatures. The decorator is the only addition.
+@trace_agent("chemistry")
+async def _chem_extract_syllabus(*args: Any, **kwargs: Any) -> Any:
+    return await lookup_chem_lo(*args, **kwargs)
+
+
+@trace_agent("chemistry")
+async def _chem_extract_past_paper(*args: Any, **kwargs: Any) -> Any:
+    return await lookup_chem_paper(*args, **kwargs)
+
+
+@trace_agent("chemistry")
+async def _chem_extract_marking_scheme(*args: Any, **kwargs: Any) -> Any:
+    return await lookup_chem_marking_scheme(*args, **kwargs)
+
+
+@trace_agent("chemistry")
+async def _chem_extract_formative_item(*args: Any, **kwargs: Any) -> Any:
+    return await generate_chem_item(*args, **kwargs)
+
+
+@trace_agent("chemistry")
+async def _chem_extract_response_score(*args: Any, **kwargs: Any) -> Any:
+    return await score_chem_response(*args, **kwargs)
 
 
 chem_agent = LlmAgent(

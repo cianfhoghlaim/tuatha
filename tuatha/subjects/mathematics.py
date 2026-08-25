@@ -16,10 +16,13 @@ routes through `config.litellm.resolve_model(family, role)`.
 """
 from __future__ import annotations
 
+from typing import Any
+
 from google.adk.agents import LlmAgent
 from google.adk.tools import FunctionTool
 
 from ..config import TuathaConfig
+from ..observability import trace_agent
 from ..routing import build_wire
 from ..tools.mathematics_formative_item_generate import generate_math_item
 from ..tools.mathematics_marking_scheme_lookup import lookup_math_marking_scheme
@@ -48,6 +51,36 @@ math_past_paper_lookup_tool = FunctionTool(func=lookup_math_paper)
 math_marking_scheme_lookup_tool = FunctionTool(func=lookup_math_marking_scheme)
 math_formative_item_generate_tool = FunctionTool(func=generate_math_item)
 math_response_score_tool = FunctionTool(func=score_math_response)
+
+
+# Per-tool extraction wrappers emit the canonical
+# `agent.mathematics.extract` Langfuse trace. The wrappers
+# delegate to the underlying tool function unchanged via
+# *args/**kwargs so they never break the existing function
+# signatures. The decorator is the only addition.
+@trace_agent("mathematics")
+async def _math_extract_syllabus(*args: Any, **kwargs: Any) -> Any:
+    return await lookup_math_lo(*args, **kwargs)
+
+
+@trace_agent("mathematics")
+async def _math_extract_past_paper(*args: Any, **kwargs: Any) -> Any:
+    return await lookup_math_paper(*args, **kwargs)
+
+
+@trace_agent("mathematics")
+async def _math_extract_marking_scheme(*args: Any, **kwargs: Any) -> Any:
+    return await lookup_math_marking_scheme(*args, **kwargs)
+
+
+@trace_agent("mathematics")
+async def _math_extract_formative_item(*args: Any, **kwargs: Any) -> Any:
+    return await generate_math_item(*args, **kwargs)
+
+
+@trace_agent("mathematics")
+async def _math_extract_response_score(*args: Any, **kwargs: Any) -> Any:
+    return await score_math_response(*args, **kwargs)
 
 
 # The canonical ADK LlmAgent for the Mathematics subject.
