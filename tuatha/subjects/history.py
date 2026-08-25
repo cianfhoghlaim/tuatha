@@ -9,11 +9,7 @@ from google.adk.tools import FunctionTool
 
 from ..config import TuathaConfig
 from ..routing import build_wire
-from ..tools.history_formative_item_generate import generate_hist_item
-from ..tools.history_marking_scheme_lookup import lookup_hist_marking_scheme
-from ..tools.history_past_paper_lookup import lookup_hist_paper
-from ..tools.history_response_score import score_hist_response
-from ..tools.history_syllabus_lookup import lookup_hist_lo
+from ..tools.corpus_tools import bind_subject_tools
 
 _wire = build_wire(
     ncca_subject="history",
@@ -27,16 +23,14 @@ _wire = build_wire(
 
 config = TuathaConfig.from_env()
 
-hist_syllabus_lookup_tool = FunctionTool(func=lookup_hist_lo)
-hist_past_paper_lookup_tool = FunctionTool(func=lookup_hist_paper)
-hist_marking_scheme_lookup_tool = FunctionTool(func=lookup_hist_marking_scheme)
-hist_formative_item_generate_tool = FunctionTool(func=generate_hist_item)
-hist_response_score_tool = FunctionTool(func=score_hist_response)
+# The five corpus tools, bound to this subject so the model
+# cannot query another subject's corpus.
+_tools = [FunctionTool(func=f) for f in bind_subject_tools("history")]
 
 
 hist_agent = LlmAgent(
     name="hist_agent",
-    model=config.litellm.resolve_model("ocr_vision", "media_descriptor"),
+    model=config.litellm.resolve_model("subject_agent"),
     description=(
         "History specialist agent for the NCCA Leaving "
         "Certificate and Junior Cycle curriculum. Early modern, "
@@ -48,13 +42,7 @@ hist_agent = LlmAgent(
         "per-subject tools and emit typed BAML responses per the "
         "`qpack_history.baml` contract."
     ),
-    tools=[
-        hist_syllabus_lookup_tool,
-        hist_past_paper_lookup_tool,
-        hist_marking_scheme_lookup_tool,
-        hist_formative_item_generate_tool,
-        hist_response_score_tool,
-    ],
+    tools=_tools,
     output_key="history_response",
 )
 

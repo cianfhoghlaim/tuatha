@@ -62,35 +62,23 @@ except Exception:
 # Wire-up dataclass (parallels academic_history_agent._build_wire)
 # ============================================================================
 
-try:
-    from cianfhoghlaim.agents.tuatha.wiring import (  # type: ignore[import-not-found]
-        SubjectAgentWiring,
-        WireSubjectAgent,
-    )
-    _WIRE_AVAILABLE = True
-except Exception:
-    _WIRE_AVAILABLE = False
+# `SubjectAgentWiring` is tuatha's own canonical wiring dataclass
+# (`tuatha.routing`). It used to be imported from the cianfhoghlaim
+# monorepo with a local stub fallback; that import can never resolve
+# from a standalone tuatha checkout, so the stub was always the live
+# path. See tuatha/corpus/CONTRACT.md — tuatha owns its wiring.
+from tuatha.routing import SubjectAgentWiring
 
-    @dataclass
-    class SubjectAgentWiring:  # type: ignore[no-redef]
-        ncca_subject: str = "media_descriptor"
-        module_slug: str = "media_descriptor"
-        display_name: str = "Media-Intel Descriptor"
-        baml_prefix: str = "MediaDesc"
-        langfuse_trace_name: str = "agent.media_descriptor.<verb>"
-        cognee_dataset: str = "oideachais_media_descriptors"
-        tuatha_de: str = "Cian"
-        lore: str = "tuatha-descriptor"
 
-    @dataclass
-    class WireSubjectAgent:  # type: ignore[no-redef]
-        """Stub fallback so `media_descriptor_agent_wire` is always importable."""
+@dataclass
+class WireSubjectAgent:
+    """The resolved wire for the media_descriptor_agent."""
 
-        subject: Any = None
-        memory_backend_kind: str | None = None
-        langfuse_wired: bool = False
-        cognee_wired: bool = False
-        baml_prefix: str | None = None
+    subject: Any = None
+    memory_backend_kind: str | None = None
+    langfuse_wired: bool = False
+    cognee_wired: bool = False
+    baml_prefix: str | None = None
 
 
 # ============================================================================
@@ -484,42 +472,23 @@ def list_tools() -> list[dict[str, Any]]:
 def _build_wire() -> WireSubjectAgent:
     """Build the `media_descriptor_agent_wire` singleton.
 
-    Defers to `get_default_backend()` if the `MemoryBackend` Protocol
-    is available; otherwise returns a `WireSubjectAgent` with
-    `memory_backend_kind=None` (the graceful fallback mode).
+    The memory backend was previously resolved from
+    `cianfhoghlaim.storage.memf`. That is across the repo boundary
+    (see tuatha/corpus/CONTRACT.md), so the wire now reports
+    `memory_backend_kind=None` until tuatha grows its own backend.
     """
-    try:
-        from cianfhoghlaim.storage.memf import (  # type: ignore[import-not-found]
-            get_default_backend,
-        )
-        _MEMORY_BACKEND_AVAILABLE = True
-    except Exception:
-        _MEMORY_BACKEND_AVAILABLE = False
-        get_default_backend = None  # type: ignore[assignment]
-
-    wiring = SubjectAgentWiring(  # type: ignore[call-arg]
-        "media_descriptor",         # ncca_subject
-        "media_descriptor",         # module_slug
-        "Media-Intel Descriptor",   # display_name
-        "MediaDesc",                # baml_prefix
-        "agent.media_descriptor.<verb>",  # langfuse_trace_name
-        "oideachais_media_descriptors",   # cognee_dataset
-        "Cian",                     # tuatha_de (Cian = knowledge/wisdom)
-        "tuatha-descriptor",        # lore
+    wiring = SubjectAgentWiring(
+        ncca_subject="media_descriptor",
+        module_slug="media_descriptor",
+        display_name="Media-Intel Descriptor",
+        baml_prefix="MediaDesc",
+        langfuse_trace_name="agent.media_descriptor.<verb>",
+        cognee_dataset="oideachais_media_descriptors",
+        letta_agent_id="kcg-media-descriptor-agent",
+        tuatha_de="Cian",  # Cian = knowledge / wisdom
+        lore="tuatha-descriptor",
     )
-    wire = WireSubjectAgent(subject=wiring, baml_prefix="MediaDesc")
-    if _MEMORY_BACKEND_AVAILABLE and get_default_backend is not None:
-        try:
-            import inspect as _inspect
-
-            backend = get_default_backend()
-            if _inspect.iscoroutine(backend) or _inspect.iscoroutinefunction(get_default_backend):
-                wire.memory_backend_kind = "async_pending"
-            else:
-                wire.memory_backend_kind = getattr(backend, "kind", None) or "protocol"
-        except Exception:
-            wire.memory_backend_kind = None
-    return wire
+    return WireSubjectAgent(subject=wiring, baml_prefix="MediaDesc")
 
 
 media_descriptor_agent_wire: WireSubjectAgent = _build_wire()

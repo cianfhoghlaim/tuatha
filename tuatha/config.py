@@ -17,13 +17,12 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 
-# Per the centralized-registry contract: model_for() is the
-# canonical resolution helper. No hardcoded model strings.
-try:
-    from meaisinfhoghlaim.models import model_for  # type: ignore
-except ImportError:
-    model_for = None  # type: ignore
-
+# Model resolution goes through tuatha's own role registry. It was
+# previously imported from `meaisinfhoghlaim` (a cianfhoghlaim package)
+# with a stub fallback, so the fallback was always the live path and
+# every agent silently ran on a `kcg-<family>-<role>` placeholder string.
+from tuatha.models import ROLES
+from tuatha.models import resolve as _resolve_role
 
 # ── LiteLLM configuration ────────────────────────────────────────
 
@@ -48,35 +47,27 @@ class LiteLlmConfig:
     )
     routing_key: str = "minimax"  # the canonical 7-tier fallback alias
 
-    def resolve_model(self, family: str, role: str) -> str:
-        """Resolve a model name through the centralized registry.
+    def resolve_model(self, role: str) -> str:
+        """Resolve a declared model role to a concrete model id.
 
-        Per the centralized-registry contract: never hardcode
-        a model string; route through model_for(family, role).
+        Args:
+            role: a key of `tuatha.models.registry.ROLES`.
+
+        Returns:
+            The model id to send to the gateway.
+
+        Raises:
+            KeyError: if the role is not declared. This used to fall
+                back to a ``kcg-<family>-<role>`` placeholder, which is
+                not a real model — the failure surfaced only as a
+                confusing gateway error much later.
         """
-        if model_for is not None:
-            # The OCR_VISION family only supports a few canonical
-            # roles (default / legacy / lightweight / primary /
-            # specialist). For roles that don't exist in the
-            # registry (e.g., 'media_descriptor'), fall back to
-            # the family default.
-            available_roles_for_ocr = {
-                "default",
-                "legacy",
-                "lightweight",
-                "primary",
-                "specialist",
-            }
-            actual_role = role
-            if family == "ocr_vision" and role not in available_roles_for_ocr:
-                actual_role = "default"
-            try:
-                return model_for(family, actual_role)
-            except KeyError:
-                # Final fallback: return the kcg-prefixed stub.
-                return f"kcg-{family}-{actual_role}"
-        # Graceful fallback for unit tests in isolation.
-        return f"kcg-{family}-{role}"
+        return _resolve_role(role)
+
+    @staticmethod
+    def declared_roles() -> tuple[str, ...]:
+        """Return the model roles tuatha declares."""
+        return tuple(sorted(ROLES))
 
 
 # ── Langfuse configuration ────────────────────────────────────────
@@ -204,7 +195,7 @@ class TuathaConfig:
     Use this in every agent + orchestrator + workflow:
     ```python
     config = TuathaConfig.from_env()
-    model = config.litellm.resolve_model("ocr_vision", "media_descriptor")
+    model = config.litellm.resolve_model("subject_agent")
     trace_name = config.langfuse.trace_name("mathematics", "ask_syllabus")
     dataset = config.cognee.dataset_name("lc", "mathematics")
     agent_id = config.letta.agent_id("mathematics")

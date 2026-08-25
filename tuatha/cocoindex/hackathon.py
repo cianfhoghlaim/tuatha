@@ -26,7 +26,7 @@ hackathon_app = App(
 
 
 @hackathon_app.mount_table(
-    name=f"hackathon_lance",
+    name="hackathon_lance",
     vector_dim=1024,
 )
 def hackathon_index(record: HackathonRecord) -> None:

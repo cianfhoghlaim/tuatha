@@ -1,11 +1,11 @@
 """The 4 BIEP hackathon features tests."""
 import pytest
-
 from tuatha.agents.hackathon import (
-    marking_grader_agent, adaptive_tutor_agent,
-    equivalency_generator_agent, curriculum_change_sensor_agent,
+    adaptive_tutor_agent,
+    curriculum_change_sensor_agent,
+    equivalency_generator_agent,
+    marking_grader_agent,
 )
-
 
 HACKATHONS = [
     ("marking_grader", marking_grader_agent),

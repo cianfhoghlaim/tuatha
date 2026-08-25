@@ -9,11 +9,7 @@ from google.adk.tools import FunctionTool
 
 from ..config import TuathaConfig
 from ..routing import build_wire
-from ..tools.english_formative_item_generate import generate_engl_item
-from ..tools.english_marking_scheme_lookup import lookup_engl_marking_scheme
-from ..tools.english_past_paper_lookup import lookup_engl_paper
-from ..tools.english_response_score import score_engl_response
-from ..tools.english_syllabus_lookup import lookup_engl_lo
+from ..tools.corpus_tools import bind_subject_tools
 
 _wire = build_wire(
     ncca_subject="english",
@@ -27,16 +23,14 @@ _wire = build_wire(
 
 config = TuathaConfig.from_env()
 
-engl_syllabus_lookup_tool = FunctionTool(func=lookup_engl_lo)
-engl_past_paper_lookup_tool = FunctionTool(func=lookup_engl_paper)
-engl_marking_scheme_lookup_tool = FunctionTool(func=lookup_engl_marking_scheme)
-engl_formative_item_generate_tool = FunctionTool(func=generate_engl_item)
-engl_response_score_tool = FunctionTool(func=score_engl_response)
+# The five corpus tools, bound to this subject so the model
+# cannot query another subject's corpus.
+_tools = [FunctionTool(func=f) for f in bind_subject_tools("english")]
 
 
 engl_agent = LlmAgent(
     name="engl_agent",
-    model=config.litellm.resolve_model("ocr_vision", "media_descriptor"),
+    model=config.litellm.resolve_model("subject_agent"),
     description=(
         "English specialist agent for the NCCA Leaving "
         "Certificate and Junior Cycle curriculum. Comprehension, "
@@ -48,13 +42,7 @@ engl_agent = LlmAgent(
         "per-subject tools and emit typed BAML responses per the "
         "`qpack_english.baml` contract."
     ),
-    tools=[
-        engl_syllabus_lookup_tool,
-        engl_past_paper_lookup_tool,
-        engl_marking_scheme_lookup_tool,
-        engl_formative_item_generate_tool,
-        engl_response_score_tool,
-    ],
+    tools=_tools,
     output_key="english_response",
 )
 

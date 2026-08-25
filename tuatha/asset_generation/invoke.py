@@ -10,28 +10,19 @@ asset generation. The output lands at s3://cianfhoghlaim-asset-v2/{3d,2d}/{subje
 
 from __future__ import annotations
 
-import os
-import subprocess
-from pathlib import Path
 from typing import Any
 
-try:
-    from cianfhoghlaim.tuatha.asset_generation.fibo import education_fibo
-    FIBO_AVAILABLE = True
-except ImportError:
-    FIBO_AVAILABLE = False
-    education_fibo = None
+# Model selection routes through tuatha's own role registry rather than
+# the cianfhoghlaim VISION_MODELS catalogue. See tuatha/models/registry.py.
+from tuatha.models import ROLES, resolve
 
+# `education_fibo` is local to this package. It was previously imported
+# as `cianfhoghlaim.tuatha.asset_generation.fibo`, which can never
+# resolve from a standalone tuatha checkout — so FIBO_AVAILABLE was
+# permanently False and every generator returned the error branch.
+from .fibo import education_fibo
 
-# The 24-entry OCR/VLM registry (cianfhoghlaim.meaisinfhoghlaim.models.registry)
-try:
-    from cianfhoghlaim.meaisinfhoghlaim.models.registry import VISION_MODELS, get_optimal_for_m4
-    REGISTRY_AVAILABLE = True
-except ImportError:
-    REGISTRY_AVAILABLE = False
-    VISION_MODELS = None
-    get_optimal_for_m4 = None
-
+FIBO_AVAILABLE = True
 
 # The 8 NCCA subjects
 NCCA_SUBJECTS = (
@@ -119,17 +110,26 @@ async def generate_subkey_competency_emblem(key_competency: str) -> dict[str, An
     }
 
 
-def select_optimal_vlm_model(task: str) -> dict[str, Any]:
-    """Select the optimal VLM model from the 24-entry OCR/VLM registry.
+def select_optimal_vlm_model(role: str) -> dict[str, Any]:
+    """Resolve a declared model role to a concrete model id.
 
-    Per the model selection logic in
-    `cianfhoghlaim.meaisinfhoghlaim.models.registry.get_optimal_for_m4`.
+    Args:
+        role: a key of `tuatha.models.registry.ROLES`, e.g.
+            ``"comic_particle"``.
+
+    Returns:
+        The resolved id plus the tier and rationale, so a caller can
+        log why a given model was chosen.
+
+    Raises:
+        KeyError: if the role is not declared. Failing loudly beats
+            silently substituting a different model.
     """
-    if not REGISTRY_AVAILABLE or get_optimal_for_m4 is None:
-        return {"error": "Registry not available"}
-
-    # TODO: select the optimal model based on the task type
+    spec = ROLES[role]
     return {
-        "task": task,
-        "registry_entries": len(VISION_MODELS) if VISION_MODELS else 0,
+        "role": role,
+        "model_id": resolve(role),
+        "family": spec.family,
+        "tier": spec.tier,
+        "why": spec.why,
     }

@@ -14,7 +14,6 @@ from __future__ import annotations
 
 from typing import Any
 
-
 # The 8 subject-specific FIBO prompt templates
 EDUCATION_FIBO_PROMPTS: dict[str, dict[str, Any]] = {
     "mathematics": {

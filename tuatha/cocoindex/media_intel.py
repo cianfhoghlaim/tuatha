@@ -26,7 +26,7 @@ media_intel_app = App(
 
 
 @media_intel_app.mount_table(
-    name=f"media_intel_lance",
+    name="media_intel_lance",
     vector_dim=1024,
 )
 def media_intel_index(record: MediaIntelRecord) -> None:

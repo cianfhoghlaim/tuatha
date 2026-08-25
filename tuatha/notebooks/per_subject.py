@@ -15,7 +15,7 @@ def __():
 @app.cell
 def __(mo):
     mo.md(
-        f"""
+        """
         # Per Subject Marimo Notebook
 
         The per-medium coverage table.

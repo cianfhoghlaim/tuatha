@@ -10,11 +10,7 @@ from google.adk.tools import FunctionTool
 
 from ..config import TuathaConfig
 from ..routing import build_wire
-from ..tools.applied_mathematics_formative_item_generate import generate_appm_item
-from ..tools.applied_mathematics_marking_scheme_lookup import lookup_appm_marking_scheme
-from ..tools.applied_mathematics_past_paper_lookup import lookup_appm_paper
-from ..tools.applied_mathematics_response_score import score_appm_response
-from ..tools.applied_mathematics_syllabus_lookup import lookup_appm_lo
+from ..tools.corpus_tools import bind_subject_tools
 
 _wire = build_wire(
     ncca_subject="applied_mathematics",
@@ -28,16 +24,14 @@ _wire = build_wire(
 
 config = TuathaConfig.from_env()
 
-appm_syllabus_lookup_tool = FunctionTool(func=lookup_appm_lo)
-appm_past_paper_lookup_tool = FunctionTool(func=lookup_appm_paper)
-appm_marking_scheme_lookup_tool = FunctionTool(func=lookup_appm_marking_scheme)
-appm_formative_item_generate_tool = FunctionTool(func=generate_appm_item)
-appm_response_score_tool = FunctionTool(func=score_appm_response)
+# The five corpus tools, bound to this subject so the model
+# cannot query another subject's corpus.
+_tools = [FunctionTool(func=f) for f in bind_subject_tools("applied_mathematics")]
 
 
 appm_agent = LlmAgent(
     name="appm_agent",
-    model=config.litellm.resolve_model("ocr_vision", "media_descriptor"),
+    model=config.litellm.resolve_model("subject_agent"),
     description=(
         "Applied Mathematics specialist agent for the NCCA "
         "Leaving Certificate and Junior Cycle curriculum. "
@@ -52,13 +46,7 @@ appm_agent = LlmAgent(
         "per-subject tools and emit typed BAML responses per the "
         "`qpack_applied_mathematics.baml` contract."
     ),
-    tools=[
-        appm_syllabus_lookup_tool,
-        appm_past_paper_lookup_tool,
-        appm_marking_scheme_lookup_tool,
-        appm_formative_item_generate_tool,
-        appm_response_score_tool,
-    ],
+    tools=_tools,
     output_key="applied_mathematics_response",
 )
 

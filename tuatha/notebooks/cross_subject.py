@@ -15,7 +15,7 @@ def __():
 @app.cell
 def __(mo):
     mo.md(
-        f"""
+        """
         # Cross Subject Marimo Notebook
 
         The cross-medium consistency score.

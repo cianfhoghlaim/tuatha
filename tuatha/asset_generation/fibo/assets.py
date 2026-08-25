@@ -526,7 +526,7 @@ async def fibo_configs_from_syllabus_diagrams(
             subject_language="EN",
             image=rendered_images or None,
         )
-    except Exception as exc:  # noqa: BLE001 — BAML error types are not stable API
+    except Exception as exc:
         context.log.error(
             "fibo_configs_from_syllabus_diagrams: extraction failed for %s: %s",
             config.subject,

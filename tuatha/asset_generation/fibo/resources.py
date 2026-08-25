@@ -7,8 +7,9 @@ Provides configurable resources for:
 """
 
 
-from dagster import ConfigurableResource, InitResourceContext
 from PIL import Image
+
+from dagster import ConfigurableResource, InitResourceContext
 
 from .schemas import FiboConfig
 

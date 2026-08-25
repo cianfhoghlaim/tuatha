@@ -26,7 +26,7 @@ config = TuathaConfig.from_env()
 
 equivalency_generator_agent = LlmAgent(
     name="equivalency_generator_agent",
-    model=config.litellm.resolve_model("text_llm", "default"),
+    model=config.litellm.resolve_model("hackathon_agent"),
     description=(
         "Cross-Jurisdiction Equivalency Generator. Compare "
         "LC ↔ A-Level ↔ GCSE topics side-by-side. Uses the BAML "

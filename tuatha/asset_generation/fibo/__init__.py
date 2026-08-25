@@ -35,7 +35,7 @@ __all__ = [
     "ValidationResource",
     "VisualRequirement",
     # Assets
+    "fibo_configs_from_syllabus_diagrams",
     "fibo_json_configs",
     "generated_images",
-    "fibo_configs_from_syllabus_diagrams",
 ]

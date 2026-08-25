@@ -9,10 +9,11 @@ the client-side schema.
 """
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import os
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 from .schema import BilingualText, EvidenceLink, EvidenceType, KeyCompetency, SkillTreeBadge
 
@@ -25,10 +26,10 @@ async def issue_badge(
     competency_code: str,
     agent_issuer: str,
     evidence: EvidenceLink,
-    competency_text: Optional[Any] = None,
-    key_competencies: Optional[list[KeyCompetency]] = None,
+    competency_text: Any | None = None,
+    key_competencies: list[KeyCompetency] | None = None,
     evidence_type: EvidenceType = EvidenceType.FORMATIVE_ITEM,
-    student_wallet_address: Optional[str] = None,
+    student_wallet_address: str | None = None,
 ) -> SkillTreeBadge:
     """Mint a new SkillTreeBadge and persist it to Convex.
 
@@ -85,7 +86,7 @@ async def issue_badge(
         competency_text=competency_text or {"text_en": competency_code, "text_ga": None},
         key_competencies=key_competencies or [],
         evidence_type=evidence_type,
-        date_earned=datetime.now(tz=timezone.utc),
+        date_earned=datetime.now(tz=UTC),
         agent_issuer=agent_issuer,
         evidence=evidence,
         evidence_hash=evidence_hash,
@@ -135,16 +136,12 @@ async def issue_badge(
         pass
 
     # 4. Mirror to FalkorDB (cross-realm mastery graph)
-    try:
+    with contextlib.suppress(Exception):
         await upsert_badge_node(badge)
-    except Exception:
-        pass
 
     # 5. Index the badge in LanceDB (semantic search)
-    try:
+    with contextlib.suppress(Exception):
         await index_badge_embedding(badge)
-    except Exception:
-        pass
 
     # 6. Mint an AchievementToken for this badge (learn-to-earn reward),
     # only when a wallet address is available. Best-effort: a failed or
@@ -186,7 +183,7 @@ def _row_to_badge(row: dict[str, Any]) -> SkillTreeBadge:
         ),
         key_competencies=[KeyCompetency(kc) for kc in row.get("keyCompetencies", [])],
         evidence_type=EvidenceType(row.get("evidenceType", EvidenceType.FORMATIVE_ITEM.value)),
-        date_earned=datetime.fromtimestamp(row["dateEarned"] / 1000, tz=timezone.utc),
+        date_earned=datetime.fromtimestamp(row["dateEarned"] / 1000, tz=UTC),
         agent_issuer=row["agentIssuer"],
         evidence=EvidenceLink(
             item_id=row["evidenceItemId"],

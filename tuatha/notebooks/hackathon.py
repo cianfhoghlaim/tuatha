@@ -15,7 +15,7 @@ def __():
 @app.cell
 def __(mo):
     mo.md(
-        f"""
+        """
         # Hackathon Marimo Notebook
 
         The the 4 BIEP hackathon features.

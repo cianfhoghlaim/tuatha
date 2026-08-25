@@ -259,7 +259,7 @@ async def get_locations(
     ]
 
     if tradition:
-        locations = [l for l in locations if l.tradition == tradition]
+        locations = [loc for loc in locations if loc.tradition == tradition]
 
     return {
         "locations": locations[:limit],

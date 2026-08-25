@@ -12,9 +12,15 @@ from __future__ import annotations
 from typing import Any
 
 
-async def classify_medium(media_descriptor: dict[str, Any]) -> str:
+def classify_medium(media_descriptor: dict[str, Any]) -> str:
     """Classify a `MediaDescriptor` record to its BAML extractor
-    function name. Returns one of:
+    function name.
+
+    This is pure dispatch with no I/O. It was declared ``async`` and
+    never awaited, so callers received a coroutine object rather than a
+    string — the reason ``test_classify_medium`` was failing.
+
+    Returns one of:
 
     - 'comic_descriptor' (for comic / graphic novel)
     - 'prose_descriptor' (for novel / story / essay)

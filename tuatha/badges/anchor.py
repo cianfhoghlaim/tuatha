@@ -19,8 +19,7 @@ from __future__ import annotations
 import hashlib
 import os
 import uuid
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
 
 from .schema import MerkleBatch, SkillTreeBadge
 
@@ -109,7 +108,7 @@ async def publish_anchor(
         leaf_count=len(badges),
         badge_ids=[b.id for b in badges],
         tx_hash=tx_hash,
-        published_at=datetime.now(tz=timezone.utc),
+        published_at=datetime.now(tz=UTC),
     )
 
     return batch

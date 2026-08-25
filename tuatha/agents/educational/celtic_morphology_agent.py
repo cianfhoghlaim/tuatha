@@ -26,7 +26,7 @@ config = TuathaConfig.from_env()
 
 celtic_morphology_agent = LlmAgent(
     name="celtic_morphology_agent",
-    model=config.litellm.resolve_model("text_llm", "default"),
+    model=config.litellm.resolve_model("educational_agent"),
     description=(
         "Celtic morphology specialist agent for the 6 Celtic "
         "languages. Verb conjugation + noun declension + "

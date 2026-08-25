@@ -25,7 +25,7 @@ config = TuathaConfig.from_env()
 
 curriculum_change_sensor_agent = LlmAgent(
     name="curriculum_change_sensor_agent",
-    model=config.litellm.resolve_model("text_llm", "default"),
+    model=config.litellm.resolve_model("hackathon_agent"),
     description=(
         "Curriculum Change Detection Sensor. Dagster sensor that "
         "watches the NCCA + AQA + SQA + WJEC + CCEA + IoM websites "

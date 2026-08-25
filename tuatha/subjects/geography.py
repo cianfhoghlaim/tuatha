@@ -9,11 +9,7 @@ from google.adk.tools import FunctionTool
 
 from ..config import TuathaConfig
 from ..routing import build_wire
-from ..tools.geography_formative_item_generate import generate_geog_item
-from ..tools.geography_marking_scheme_lookup import lookup_geog_marking_scheme
-from ..tools.geography_past_paper_lookup import lookup_geog_paper
-from ..tools.geography_response_score import score_geog_response
-from ..tools.geography_syllabus_lookup import lookup_geog_lo
+from ..tools.corpus_tools import bind_subject_tools
 
 _wire = build_wire(
     ncca_subject="geography",
@@ -27,16 +23,14 @@ _wire = build_wire(
 
 config = TuathaConfig.from_env()
 
-geog_syllabus_lookup_tool = FunctionTool(func=lookup_geog_lo)
-geog_past_paper_lookup_tool = FunctionTool(func=lookup_geog_paper)
-geog_marking_scheme_lookup_tool = FunctionTool(func=lookup_geog_marking_scheme)
-geog_formative_item_generate_tool = FunctionTool(func=generate_geog_item)
-geog_response_score_tool = FunctionTool(func=score_geog_response)
+# The five corpus tools, bound to this subject so the model
+# cannot query another subject's corpus.
+_tools = [FunctionTool(func=f) for f in bind_subject_tools("geography")]
 
 
 geog_agent = LlmAgent(
     name="geog_agent",
-    model=config.litellm.resolve_model("ocr_vision", "media_descriptor"),
+    model=config.litellm.resolve_model("subject_agent"),
     description=(
         "Geography specialist agent for the NCCA Leaving "
         "Certificate and Junior Cycle curriculum. Physical "
@@ -49,13 +43,7 @@ geog_agent = LlmAgent(
         "per-subject tools and emit typed BAML responses per the "
         "`qpack_geography.baml` contract."
     ),
-    tools=[
-        geog_syllabus_lookup_tool,
-        geog_past_paper_lookup_tool,
-        geog_marking_scheme_lookup_tool,
-        geog_formative_item_generate_tool,
-        geog_response_score_tool,
-    ],
+    tools=_tools,
     output_key="geography_response",
 )
 

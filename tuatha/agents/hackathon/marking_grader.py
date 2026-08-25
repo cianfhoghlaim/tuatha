@@ -26,7 +26,7 @@ config = TuathaConfig.from_env()
 
 marking_grader_agent = LlmAgent(
     name="marking_grader_agent",
-    model=config.litellm.resolve_model("text_llm", "default"),
+    model=config.litellm.resolve_model("hackathon_agent"),
     description=(
         "Adaptive Marking Grader. Student uploads answer + "
         "marking scheme → instant grade + feedback. Uses the "

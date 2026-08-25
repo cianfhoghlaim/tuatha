@@ -6,7 +6,6 @@ Integrates with SpacetimeDB for real-time multiplayer state.
 """
 
 from datetime import datetime
-from typing import Any
 
 from pydantic import BaseModel
 

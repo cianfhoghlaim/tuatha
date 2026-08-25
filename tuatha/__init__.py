@@ -1,9 +1,7 @@
 """tuatha — the British Isles Formative Assessment MMO.
 
-The canonical Python sub-namespace for the new
-`/Users/cianmacandeisigh/dev/kings_college_galway/tuatha/`
-independent sub-project (will become
-`github.com/cianmacandeisigh/tuatha.git`).
+The canonical Python sub-namespace for the independent tuatha
+repository (`github.com/cianfhoghlaim/tuatha.git`).
 
 The 4 agent types:
 - The 8 NCCA subject agents (mathematics / applied_mathematics

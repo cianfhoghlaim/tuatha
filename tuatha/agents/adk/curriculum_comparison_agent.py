@@ -7,18 +7,18 @@ Specialized agent for comparing curricula across British Isles nations.
 import datetime
 
 from google.adk.agents import LlmAgent
-from .litellm_agent import litellm_model
 from google.adk.planners import BuiltInPlanner
 from google.genai import types as genai_types
 from pydantic import BaseModel
 
-from ..tools.curriculum_search import (
+from ...tools.curriculum_search import (
     compare_curricula,
     find_similar_content,
     get_learning_outcomes,
     search_curriculum,
 )
-from .config import CURRICULUM_FRAMEWORKS, config
+from .config import CURRICULUM_FRAMEWORKS
+from .litellm_agent import litellm_model
 
 
 # --- Structured Outputs ---

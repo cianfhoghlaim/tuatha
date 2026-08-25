@@ -1,6 +1,7 @@
 """The consolidation tests (the 6 quality gates)."""
-import pytest
 import subprocess
+
+import pytest
 
 
 @pytest.mark.parametrize("gate,cmd", [

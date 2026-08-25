@@ -15,7 +15,7 @@ def __():
 @app.cell
 def __(mo):
     mo.md(
-        f"""
+        """
         # Media Intel Marimo Notebook
 
         The the 5-class media descriptor pipeline.

@@ -26,7 +26,7 @@ config = TuathaConfig.from_env()
 
 celtic_grammar_agent = LlmAgent(
     name="celtic_grammar_agent",
-    model=config.litellm.resolve_model("text_llm", "default"),
+    model=config.litellm.resolve_model("educational_agent"),
     description=(
         "Celtic grammar specialist agent for the 6 Celtic "
         "languages (Irish + Welsh + Scottish Gaelic + Breton + "

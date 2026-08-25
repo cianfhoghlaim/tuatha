@@ -5,6 +5,8 @@ Search Celtic mythology content for NPC dialogue and lore generation.
 Covers Irish, Welsh, and Scottish traditions.
 """
 
+import os
+
 import lancedb
 from pydantic import BaseModel
 
@@ -62,10 +64,22 @@ _db: lancedb.DBConnection | None = None
 
 
 def _get_db() -> lancedb.DBConnection:
-    """Get LanceDB connection."""
+    """Get the LanceDB connection.
+
+    The URI comes from ``TUATHA_LANCE_URI``. It previously hardcoded an
+    absolute path under another developer's home directory, which
+    resolved on exactly one machine.
+    """
     global _db
     if _db is None:
-        _db = lancedb.connect("/Users/cliste/dev/cianfhoghlaim/sruth/tuath/storage/lance")
+        uri = os.environ.get("TUATHA_LANCE_URI")
+        if not uri:
+            raise RuntimeError(
+                "TUATHA_LANCE_URI is not set. Point it at the Lance "
+                "namespace root (a local path, or the s3:// URI of the "
+                "shared lakehouse). See tuatha/corpus/CONTRACT.md."
+            )
+        _db = lancedb.connect(uri)
     return _db
 
 

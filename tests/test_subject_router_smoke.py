@@ -1,20 +1,30 @@
 """The 20 canonical smoke tests for the 8 NCCA subject agents + 3 educational agents + 4 BIEP hackathon features + the 10-tool media_descriptor_agent."""
 import pytest
-
-from tuatha.subjects import (
-    math_agent, appm_agent, chem_agent, geog_agent,
-    hist_agent, engl_agent, gael_agent, comp_agent,
-)
 from tuatha.agents.educational import (
-    academic_history_agent, celtic_grammar_agent, celtic_morphology_agent,
+    academic_history_agent,
+    celtic_grammar_agent,
+    celtic_morphology_agent,
 )
 from tuatha.agents.hackathon import (
-    marking_grader_agent, adaptive_tutor_agent,
-    equivalency_generator_agent, curriculum_change_sensor_agent,
+    adaptive_tutor_agent,
+    curriculum_change_sensor_agent,
+    equivalency_generator_agent,
+    marking_grader_agent,
 )
 from tuatha.agents.media_intel import (
-    TOOLS, media_descriptor_agent,
-    classify_medium, per_medium_coverage, cross_medium_consistency,
+    TOOLS,
+    classify_medium,
+    media_descriptor_agent,
+)
+from tuatha.subjects import (
+    appm_agent,
+    chem_agent,
+    comp_agent,
+    engl_agent,
+    gael_agent,
+    geog_agent,
+    hist_agent,
+    math_agent,
 )
 
 AGENTS = [

@@ -14,11 +14,7 @@ from google.adk.tools import FunctionTool
 
 from ..config import TuathaConfig
 from ..routing import build_wire
-from ..tools.gaeilge_formative_item_generate import generate_gael_item
-from ..tools.gaeilge_marking_scheme_lookup import lookup_gael_marking_scheme
-from ..tools.gaeilge_past_paper_lookup import lookup_gael_paper
-from ..tools.gaeilge_response_score import score_gael_response
-from ..tools.gaeilge_syllabus_lookup import lookup_gael_lo
+from ..tools.corpus_tools import bind_subject_tools
 
 _wire = build_wire(
     ncca_subject="gaeilge",
@@ -32,16 +28,14 @@ _wire = build_wire(
 
 config = TuathaConfig.from_env()
 
-gael_syllabus_lookup_tool = FunctionTool(func=lookup_gael_lo)
-gael_past_paper_lookup_tool = FunctionTool(func=lookup_gael_paper)
-gael_marking_scheme_lookup_tool = FunctionTool(func=lookup_gael_marking_scheme)
-gael_formative_item_generate_tool = FunctionTool(func=generate_gael_item)
-gael_response_score_tool = FunctionTool(func=score_gael_response)
+# The five corpus tools, bound to this subject so the model
+# cannot query another subject's corpus.
+_tools = [FunctionTool(func=f) for f in bind_subject_tools("gaeilge")]
 
 
 gael_agent = LlmAgent(
     name="gael_agent",
-    model=config.litellm.resolve_model("ocr_vision", "media_descriptor"),
+    model=config.litellm.resolve_model("subject_agent"),
     description=(
         "Gaeilge (Irish) specialist agent for the NCCA Leaving "
         "Certificate and Junior Cycle curriculum. Bilingual EN + "
@@ -58,13 +52,7 @@ gael_agent = LlmAgent(
         "scaoileann tú freagraí BAML de réir "
         "`qpack_gaeilge.baml`."
     ),
-    tools=[
-        gael_syllabus_lookup_tool,
-        gael_past_paper_lookup_tool,
-        gael_marking_scheme_lookup_tool,
-        gael_formative_item_generate_tool,
-        gael_response_score_tool,
-    ],
+    tools=_tools,
     output_key="gaeilge_response",
 )
 

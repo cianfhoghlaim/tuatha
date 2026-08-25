@@ -15,7 +15,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -24,7 +23,7 @@ class BilingualText(BaseModel):
     """Bilingual EN + GA text. text_ga may be None for EN-only content."""
 
     text_en: str
-    text_ga: Optional[str] = None
+    text_ga: str | None = None
 
 
 class EvidenceLink(BaseModel):
@@ -34,9 +33,9 @@ class EvidenceLink(BaseModel):
     response: str = Field(description="Verbatim student response")
     score_pct: float = Field(..., ge=0, le=100)
     feedback_en: str
-    feedback_ga: Optional[str] = None
-    source_pdf: Optional[str] = None
-    source_page: Optional[int] = None
+    feedback_ga: str | None = None
+    source_pdf: str | None = None
+    source_page: int | None = None
 
 
 class KeyCompetency(str, Enum):
@@ -103,10 +102,10 @@ class SkillTreeBadge(BaseModel):
     evidence: EvidenceLink
     evidence_hash: str = Field(description="SHA-256 of evidence, used as the Merkle leaf")
     signature: str = Field(description="ETH signature from agent_issuer wallet")
-    on_chain_anchor: Optional[str] = Field(
+    on_chain_anchor: str | None = Field(
         default=None, description="Base L2 tx_hash; populated when Merkle batch closes"
     )
-    anchor_date: Optional[str] = Field(
+    anchor_date: str | None = Field(
         default=None, description="YYYY-MM-DD of the daily anchor batch"
     )
     eiraic_treasures_unlocked: list[str] = Field(
@@ -128,8 +127,8 @@ class MerkleBatch(BaseModel):
     merkle_root: str = Field(description="Hex-encoded 32-byte Merkle root")
     leaf_count: int = Field(..., ge=0)
     badge_ids: list[str] = Field(description="The badge IDs included in this batch")
-    tx_hash: Optional[str] = Field(default=None, description="Base L2 tx_hash")
-    published_at: Optional[datetime] = None
+    tx_hash: str | None = Field(default=None, description="Base L2 tx_hash")
+    published_at: datetime | None = None
 
 
 class CredentialAnchor(BaseModel):
@@ -259,7 +258,7 @@ class EiraicTreasure:
     capability: EiraicCapability
     primary_subject: EiraicSubject
     rationale_en: str
-    rationale_ga: Optional[str]
+    rationale_ga: str | None
     mmo_signal: str
     tier: int
 

@@ -26,7 +26,7 @@ cross_subject_app = App(
 
 
 @cross_subject_app.mount_table(
-    name=f"cross_subject_lance",
+    name="cross_subject_lance",
     vector_dim=1024,
 )
 def cross_subject_index(record: CrossSubjectRecord) -> None:

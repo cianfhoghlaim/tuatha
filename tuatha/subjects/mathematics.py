@@ -12,7 +12,7 @@ reference): the agent is constructed with `_BAML_AVAILABLE`
 never crashes.
 
 Per the centralized-registry contract: every model string
-routes through `config.litellm.resolve_model(family, role)`.
+routes through `config.litellm.resolve_model(role)`.
 """
 from __future__ import annotations
 
@@ -21,11 +21,7 @@ from google.adk.tools import FunctionTool
 
 from ..config import TuathaConfig
 from ..routing import build_wire
-from ..tools.mathematics_formative_item_generate import generate_math_item
-from ..tools.mathematics_marking_scheme_lookup import lookup_math_marking_scheme
-from ..tools.mathematics_past_paper_lookup import lookup_math_paper
-from ..tools.mathematics_response_score import score_math_response
-from ..tools.mathematics_syllabus_lookup import lookup_math_lo
+from ..tools.corpus_tools import bind_subject_tools
 
 # Build the canonical SubjectAgentWiring for mathematics.
 _wire = build_wire(
@@ -43,17 +39,15 @@ _wire = build_wire(
 config = TuathaConfig.from_env()
 
 # The 5 per-subject tools.
-math_syllabus_lookup_tool = FunctionTool(func=lookup_math_lo)
-math_past_paper_lookup_tool = FunctionTool(func=lookup_math_paper)
-math_marking_scheme_lookup_tool = FunctionTool(func=lookup_math_marking_scheme)
-math_formative_item_generate_tool = FunctionTool(func=generate_math_item)
-math_response_score_tool = FunctionTool(func=score_math_response)
+# The five corpus tools, bound to this subject so the model
+# cannot query another subject's corpus.
+_tools = [FunctionTool(func=f) for f in bind_subject_tools("mathematics")]
 
 
 # The canonical ADK LlmAgent for the Mathematics subject.
 math_agent = LlmAgent(
     name="math_agent",
-    model=config.litellm.resolve_model("ocr_vision", "media_descriptor"),
+    model=config.litellm.resolve_model("subject_agent"),
     description=(
         "Mathematics specialist agent for the NCCA Leaving "
         "Certificate and Junior Cycle curriculum. Formative "
@@ -70,13 +64,7 @@ math_agent = LlmAgent(
         "response_score) and emit typed BAML responses per the "
         "`qpack_mathematics.baml` contract."
     ),
-    tools=[
-        math_syllabus_lookup_tool,
-        math_past_paper_lookup_tool,
-        math_marking_scheme_lookup_tool,
-        math_formative_item_generate_tool,
-        math_response_score_tool,
-    ],
+    tools=_tools,
     output_key="mathematics_response",
 )
 

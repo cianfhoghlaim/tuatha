@@ -34,6 +34,11 @@ class SubjectAgentWiring:
     cognee_dataset: str
     letta_agent_id: str
     litellm_routing_key: str = "minimax"  # the canonical 7-tier fallback
+    # Lore metadata. Optional because only the media-intel and
+    # game-facing wires carry a deity attribution; the pure
+    # education wires leave these unset.
+    tuatha_de: str | None = None
+    lore: str | None = None
 
 
 def build_wire(

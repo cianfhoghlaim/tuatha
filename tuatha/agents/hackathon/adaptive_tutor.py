@@ -24,7 +24,7 @@ config = TuathaConfig.from_env()
 
 adaptive_tutor_agent = LlmAgent(
     name="adaptive_tutor_agent",
-    model=config.litellm.resolve_model("text_llm", "default"),
+    model=config.litellm.resolve_model("hackathon_agent"),
     description=(
         "Adaptive Tutor Chat. Stateful 6-jurisdiction syllabus "
         "tutor with persistent memory (Cognee + Letta). Routes "

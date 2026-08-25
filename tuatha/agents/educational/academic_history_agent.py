@@ -27,7 +27,7 @@ config = TuathaConfig.from_env()
 
 academic_history_agent = LlmAgent(
     name="academic_history_agent",
-    model=config.litellm.resolve_model("text_llm", "default"),
+    model=config.litellm.resolve_model("educational_agent"),
     description=(
         "Cross-archive academic history research agent for the "
         "British Isles MMO. Routes queries to the Wikipedia + CELT + "

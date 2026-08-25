@@ -1,9 +1,8 @@
 """The 10-tool media_descriptor_agent tests."""
-import pytest
 
 from tuatha.agents.media_intel import (
-    TOOLS, TOOL_NAMES, media_descriptor_agent,
-    classify_medium, per_medium_coverage, cross_medium_consistency, summarise_corpus,
+    TOOL_NAMES,
+    TOOLS,
 )
 
 
