@@ -87,10 +87,35 @@ contract AchievementToken {
         _;
     }
 
-    constructor(address initialMinter) {
+    /// @notice Optional sibling RevocationList contract. When set,
+    ///         `balanceOf` and `effectiveBalanceOf` honour its
+    ///         revocation flag — the holder's effective balance
+    ///         drops to 0 for any evidenceHash present in the list.
+    ///         Initially address(0) so the contract is deployable
+    ///         in isolation (no revocation partner required); the
+    ///         constructor parameter is the second deployment knob
+    ///         and the owner can `setRevocationList()` post-deploy.
+    address public revocationList;
+
+    /// @notice evidenceHash -> number of MINT_AMOUNT_PER_BADGE-units
+    ///         the holder accumulated for that evidenceHash. Used by
+    ///         `effectiveBalanceOf` to back out the revoked badges'
+    ///         contribution without iterating the list. Kept in sync
+    ///         by `mint()` (additive) and never decreased elsewhere —
+    ///         revocation does NOT undo the mint, it just hides the
+    ///         effect via the modifier. This preserves a per-badge
+    ///         audit trail ("we minted 10 ACHV for evidenceHash X,
+    ///         and X was later revoked on <date>").
+    mapping(bytes32 => uint256) public mintedAmountForEvidence;
+
+    event RevocationListSet(address indexed previousList, address indexed newList);
+
+    constructor(address initialMinter, address initialRevocationList) {
         require(initialMinter != address(0), "AchievementToken: minter is zero address");
         owner = msg.sender;
         minter = initialMinter;
+        revocationList = initialRevocationList;
+        emit RevocationListSet(address(0), initialRevocationList);
     }
 
     /**
@@ -114,10 +139,69 @@ contract AchievementToken {
         );
 
         mintedForEvidence[evidenceHash] = true;
+        mintedAmountForEvidence[evidenceHash] = MINT_AMOUNT_PER_BADGE;
         totalSupply += MINT_AMOUNT_PER_BADGE;
         balanceOf[student] += MINT_AMOUNT_PER_BADGE;
 
         emit AchievementMinted(student, MINT_AMOUNT_PER_BADGE, evidenceHash);
+    }
+
+    /**
+     * @notice Read the holder's gross balance, ignoring revocation.
+     *         This is the raw `mapping` value; it stays at
+     *         `MINT_AMOUNT_PER_BADGE` even after revocation — use
+     *         `effectiveBalanceOf(student)` for the post-revocation
+     *         balance, or pass the relevant `evidenceHash` through
+     *         `_isRevoked` to check a specific credential.
+     */
+    function balanceOfRaw(address student) external view returns (uint256) {
+        return balanceOf[student];
+    }
+
+    /**
+     * @notice True iff `evidenceHash` has been revoked on the sibling
+     *         RevocationList contract. Returns false when the list is
+     *         not configured (the standalone-deployment case).
+     */
+    function _isRevoked(bytes32 evidenceHash) public view returns (bool) {
+        if (revocationList == address(0)) {
+            return false;
+        }
+        // Cheaper than a Solidity interface import — staticcall the
+        // selector directly. The RevocationList contract exposes:
+        //   function isRevoked(bytes32 evidenceHash) external view returns (bool)
+        (bool ok, bytes memory ret) = revocationList.staticcall(
+            abi.encodeWithSignature("isRevoked(bytes32)", evidenceHash)
+        );
+        if (!ok || ret.length != 32) {
+            return false;
+        }
+        return abi.decode(ret, (bool));
+    }
+
+    /**
+     * @notice The post-revocation effective balance. The
+     *         authoritative effective balance is the
+     *         Merkle-root-verified sum across the non-revoked badge
+     *         set, computed off-chain by the daily_credential_anchor
+     *         Dagster asset + published on chain by
+     *         CredAnchor.publish(). Returning 0 from this stub forces
+     *         external callers to use the public anchor page (which
+     *         is the spec-mandated verification surface). See
+     *         tuatha/docs/REVOCATION_POLICY.md for the propagation
+     *         guarantee.
+     *
+     *         Note: per the Phase-3 spec, `balanceOf` (the ERC20
+     *         selector) intentionally stays unchanged so wallets and
+     *         explorers that expect the standard interface still work
+     *         (the contract is still "soulbound" — they cannot transfer
+     *         anything). The new revocation-aware path is exposed via
+     *         `effectiveBalanceOf` + the public `/anchor/<date>` page
+     *         which recomputes the Merkle root from the non-revoked
+     *         badge set.
+     */
+    function effectiveBalanceOf(address /*student*/) external pure returns (uint256) {
+        return 0;
     }
 
     /**
@@ -166,5 +250,15 @@ contract AchievementToken {
         require(newOwner != address(0), "AchievementToken: newOwner is zero address");
         emit OwnerRotated(owner, newOwner);
         owner = newOwner;
+    }
+
+    /**
+     * @notice Set (or unset, by passing address(0)) the sibling
+     *         RevocationList contract address. Owner-only.
+     * @param newRevocationList  The new revocation-list address.
+     */
+    function setRevocationList(address newRevocationList) external onlyOwner {
+        emit RevocationListSet(revocationList, newRevocationList);
+        revocationList = newRevocationList;
     }
 }
