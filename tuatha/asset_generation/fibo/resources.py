@@ -219,8 +219,22 @@ class ValidationResource(ConfigurableResource):
 
     validation_threshold: float = 0.7
     max_refinement_iterations: int = 3
-    vlm_model: str = "gpt-4-vision-preview"
+    vlm_model: str = ""  # resolved via MODEL_REGISTRY at runtime (see vlm_model_name)
     litellm_api_base: str = "http://localhost:4000"
+
+    @property
+    def vlm_model_name(self) -> str:
+        """Resolve the VLM model via MODEL_REGISTRY. Defaults to
+        `qwen3-vl-8b-instruct` (the canonical Unsloth-served
+        default for diagram-pointing)."""
+        if self.vlm_model:
+            return self.vlm_model
+        try:
+            from meaisinfhoghlaim.models import MODEL_REGISTRY
+            entry = MODEL_REGISTRY.resolve("ocr_vision", "default")
+            return entry
+        except Exception:
+            return "qwen3-vl-8b-instruct"
 
     _client = None
 
