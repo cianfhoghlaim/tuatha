@@ -25,8 +25,6 @@ Reference:
 - `tuatha/badges/ledger.py::fetch_unrevoked_badges_since` — the badge fetcher
 - `tuatha/docs/REVOCATION_POLICY.md` — the 24h propagation guarantee
 """
-from __future__ import annotations
-
 import asyncio
 import contextlib
 from datetime import datetime, timedelta, timezone
