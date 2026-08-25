@@ -1,8 +1,8 @@
-// tuatha/baml/qpack_applied_mathematics.baml — canonical BAML contracts for the NCCA Applied Mathematics subject.
+// tuatha/baml/qpack_accounting.baml — canonical BAML contracts for the NCCA Accounting subject.
 
 client minimax
 
-class AppMathSyllabusTopic {
+class AccountingSyllabusTopic {
   ncca_code       string
   title_en        string
   title_ga        string
@@ -14,7 +14,7 @@ class AppMathSyllabusTopic {
   provenance_sha256 string
 }
 
-class AppMathPastPaper {
+class AccountingPastPaper {
   year         int
   level        string
   paper        int
@@ -22,7 +22,7 @@ class AppMathPastPaper {
   provenance_sha256 string
 }
 
-class AppMathMarkingScheme {
+class AccountingMarkingScheme {
   lo_code       string
   level         string
   year          int
@@ -31,7 +31,7 @@ class AppMathMarkingScheme {
   provenance_sha256 string
 }
 
-class AppMathFormativeItem {
+class AccountingFormativeItem {
   lo_code       string
   difficulty    int
   level         string
@@ -42,7 +42,7 @@ class AppMathFormativeItem {
   evidence_pdfs        list<string>
 }
 
-class AppMathFormativeResponse {
+class AccountingFormativeResponse {
   item_id           string
   student_response  string
   grade             float
@@ -53,82 +53,82 @@ class AppMathFormativeResponse {
 }
 
 
-function GenerateAppMathSyllabus(
+function GenerateAccountingSyllabus(
   lo_code: string,
   level: string,
   language: string,
   pdf_pages: string,
-) -> AppMathSyllabusTopic {
+) -> AccountingSyllabusTopic {
   client minimax
   prompt #"
-    Generate the canonical Applied Mathematics syllabus topic for LO code { lo_code }
+    Generate the canonical Accounting syllabus topic for LO code { lo_code }
     at level { level } in language { language } from these PDF pages:
     { pdf_pages }
-    return a AppMathSyllabusTopic.
+    return a AccountingSyllabusTopic.
   "#
 }
 
-function GenerateAppMathPastPaper(
+function GenerateAccountingPastPaper(
   year: int,
   level: string,
   paper: int,
   pdf_pages: string,
-) -> AppMathPastPaper {
+) -> AccountingPastPaper {
   client minimax
   prompt #"
-    Generate the canonical Applied Mathematics past paper for year { year }
+    Generate the canonical Accounting past paper for year { year }
     at level { level } paper { paper } from these PDF pages:
     { pdf_pages }
-    return a AppMathPastPaper.
+    return a AccountingPastPaper.
   "#
 }
 
-function GenerateAppMathMarkingScheme(
+function GenerateAccountingMarkingScheme(
   lo_code: string,
   level: string,
   year: int,
   pdf_pages: string,
-) -> AppMathMarkingScheme {
+) -> AccountingMarkingScheme {
   client minimax
   prompt #"
-    Generate the canonical Applied Mathematics marking scheme for LO code
+    Generate the canonical Accounting marking scheme for LO code
     { lo_code } at level { level } year { year } from these PDF pages:
     { pdf_pages }
-    return a AppMathMarkingScheme.
+    return a AccountingMarkingScheme.
   "#
 }
 
-function GenerateAppMathFormativeItem(
+function GenerateAccountingFormativeItem(
   lo_code: string,
   difficulty: int,
   level: string,
   topic: string,
   pdf_pages: string,
-) -> AppMathFormativeItem {
+) -> AccountingFormativeItem {
   client minimax
   prompt #"
-    Generate the canonical Applied Mathematics formative item for LO code
+    Generate the canonical Accounting formative item for LO code
     { lo_code } at difficulty { difficulty } at level { level } topic
     { topic } from these PDF pages:
     { pdf_pages }
-    return a AppMathFormativeItem.
+    return a AccountingFormativeItem.
   "#
 }
 
-function ScoreAppMathFormativeResponse(
+function ScoreAccountingFormativeResponse(
   item_id: string,
   student_response: string,
   response_format: string,
   time_taken_seconds: int,
   hints_used: int,
   rubric_text: string,
-) -> AppMathFormativeResponse {
+) -> AccountingFormativeResponse {
   client minimax
   prompt #"
-    Score the Applied Mathematics response for item_id { item_id } student_response
+    Score the Accounting response for item_id { item_id } student_response
     { student_response } in format { response_format } with time
     { time_taken_seconds }s and hints { hints_used } against the rubric:
     { rubric_text }
-    return a AppMathFormativeResponse.
+    return a AccountingFormativeResponse.
   "#
 }

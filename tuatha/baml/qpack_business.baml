@@ -1,8 +1,8 @@
-// tuatha/baml/qpack_applied_mathematics.baml — canonical BAML contracts for the NCCA Applied Mathematics subject.
+// tuatha/baml/qpack_business.baml — canonical BAML contracts for the NCCA Business subject.
 
 client minimax
 
-class AppMathSyllabusTopic {
+class BusinessSyllabusTopic {
   ncca_code       string
   title_en        string
   title_ga        string
@@ -14,7 +14,7 @@ class AppMathSyllabusTopic {
   provenance_sha256 string
 }
 
-class AppMathPastPaper {
+class BusinessPastPaper {
   year         int
   level        string
   paper        int
@@ -22,7 +22,7 @@ class AppMathPastPaper {
   provenance_sha256 string
 }
 
-class AppMathMarkingScheme {
+class BusinessMarkingScheme {
   lo_code       string
   level         string
   year          int
@@ -31,7 +31,7 @@ class AppMathMarkingScheme {
   provenance_sha256 string
 }
 
-class AppMathFormativeItem {
+class BusinessFormativeItem {
   lo_code       string
   difficulty    int
   level         string
@@ -42,7 +42,7 @@ class AppMathFormativeItem {
   evidence_pdfs        list<string>
 }
 
-class AppMathFormativeResponse {
+class BusinessFormativeResponse {
   item_id           string
   student_response  string
   grade             float
@@ -53,82 +53,82 @@ class AppMathFormativeResponse {
 }
 
 
-function GenerateAppMathSyllabus(
+function GenerateBusinessSyllabus(
   lo_code: string,
   level: string,
   language: string,
   pdf_pages: string,
-) -> AppMathSyllabusTopic {
+) -> BusinessSyllabusTopic {
   client minimax
   prompt #"
-    Generate the canonical Applied Mathematics syllabus topic for LO code { lo_code }
+    Generate the canonical Business syllabus topic for LO code { lo_code }
     at level { level } in language { language } from these PDF pages:
     { pdf_pages }
-    return a AppMathSyllabusTopic.
+    return a BusinessSyllabusTopic.
   "#
 }
 
-function GenerateAppMathPastPaper(
+function GenerateBusinessPastPaper(
   year: int,
   level: string,
   paper: int,
   pdf_pages: string,
-) -> AppMathPastPaper {
+) -> BusinessPastPaper {
   client minimax
   prompt #"
-    Generate the canonical Applied Mathematics past paper for year { year }
+    Generate the canonical Business past paper for year { year }
     at level { level } paper { paper } from these PDF pages:
     { pdf_pages }
-    return a AppMathPastPaper.
+    return a BusinessPastPaper.
   "#
 }
 
-function GenerateAppMathMarkingScheme(
+function GenerateBusinessMarkingScheme(
   lo_code: string,
   level: string,
   year: int,
   pdf_pages: string,
-) -> AppMathMarkingScheme {
+) -> BusinessMarkingScheme {
   client minimax
   prompt #"
-    Generate the canonical Applied Mathematics marking scheme for LO code
+    Generate the canonical Business marking scheme for LO code
     { lo_code } at level { level } year { year } from these PDF pages:
     { pdf_pages }
-    return a AppMathMarkingScheme.
+    return a BusinessMarkingScheme.
   "#
 }
 
-function GenerateAppMathFormativeItem(
+function GenerateBusinessFormativeItem(
   lo_code: string,
   difficulty: int,
   level: string,
   topic: string,
   pdf_pages: string,
-) -> AppMathFormativeItem {
+) -> BusinessFormativeItem {
   client minimax
   prompt #"
-    Generate the canonical Applied Mathematics formative item for LO code
+    Generate the canonical Business formative item for LO code
     { lo_code } at difficulty { difficulty } at level { level } topic
     { topic } from these PDF pages:
     { pdf_pages }
-    return a AppMathFormativeItem.
+    return a BusinessFormativeItem.
   "#
 }
 
-function ScoreAppMathFormativeResponse(
+function ScoreBusinessFormativeResponse(
   item_id: string,
   student_response: string,
   response_format: string,
   time_taken_seconds: int,
   hints_used: int,
   rubric_text: string,
-) -> AppMathFormativeResponse {
+) -> BusinessFormativeResponse {
   client minimax
   prompt #"
-    Score the Applied Mathematics response for item_id { item_id } student_response
+    Score the Business response for item_id { item_id } student_response
     { student_response } in format { response_format } with time
     { time_taken_seconds }s and hints { hints_used } against the rubric:
     { rubric_text }
-    return a AppMathFormativeResponse.
+    return a BusinessFormativeResponse.
   "#
 }

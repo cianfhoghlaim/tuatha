@@ -1,111 +1,134 @@
-// tuatha.baml.qpack_english — the canonical BAML functions for the English subject.
+// tuatha/baml/qpack_english.baml — canonical BAML contracts for the NCCA English subject.
 
-client<llm> litellm_proxy
+client minimax
 
-class EnglSyllabusTopic {
-  ncca_code string
-  title_en string
-  title_ga string
-  description_en string
-  description_ga string
-  source_pdf string
-  source_page int
+class EnglishSyllabusTopic {
+  ncca_code       string
+  title_en        string
+  title_ga        string
+  description_en  string
+  description_ga  string
+  level           string
+  source_pdf      string
+  source_page     int
+  provenance_sha256 string
 }
 
-class EnglPastPaper {
-  year int
-  level string
-  paper int
-  paper_url string
+class EnglishPastPaper {
+  year         int
+  level        string
+  paper        int
+  paper_url    string
+  provenance_sha256 string
 }
 
-class EnglMarkingScheme {
-  lo_code string
-  level string
-  year int
-  scheme_url string
-  criteria list<string>
+class EnglishMarkingScheme {
+  lo_code       string
+  level         string
+  year          int
+  scheme_url    string
+  criteria      list<string>
+  provenance_sha256 string
 }
 
-class EnglFormativeItem {
-  lo_code string
-  difficulty int
-  level string
-  multiple_choice string
-  short_answer string
-  extended_response string
-  evidence string?
+class EnglishFormativeItem {
+  lo_code       string
+  difficulty    int
+  level         string
+  topic         string
+  multiple_choice    string
+  short_answer       string
+  extended_response  string
+  evidence_pdfs        list<string>
 }
 
-class EnglFormativeResponse {
-  item_id string
-  student_response string
-  grade float
-  feedback_en string
-  feedback_ga string
-  badge_emitted bool
+class EnglishFormativeResponse {
+  item_id           string
+  student_response  string
+  grade             float
+  feedback_en       string
+  feedback_ga       string
+  badge_emitted     bool
+  rubric_evidence   list<string>
 }
 
-function GenerateEnglSyllabus(
+
+function GenerateEnglishSyllabus(
   lo_code: string,
   level: string,
   language: string,
-) -> EnglSyllabusTopic {
+  pdf_pages: string,
+) -> EnglishSyllabusTopic {
   client minimax
   prompt #"
-    You are the English syllabus specialist for the NCCA Leaving
-    Certificate curriculum.
-
-    Given the LO code { lo_code } at level { level } in
-    language { language }, generate the canonical
-    EnglSyllabusTopic record.
+    Generate the canonical English syllabus topic for LO code { lo_code }
+    at level { level } in language { language } from these PDF pages:
+    { pdf_pages }
+    return a EnglishSyllabusTopic.
   "#
 }
 
-function GenerateEnglPastPaper(
+function GenerateEnglishPastPaper(
   year: int,
   level: string,
   paper: int,
-) -> EnglPastPaper {
+  pdf_pages: string,
+) -> EnglishPastPaper {
   client minimax
   prompt #"
-    You are the English past paper specialist.
+    Generate the canonical English past paper for year { year }
+    at level { level } paper { paper } from these PDF pages:
+    { pdf_pages }
+    return a EnglishPastPaper.
   "#
 }
 
-function GenerateEnglMarkingScheme(
+function GenerateEnglishMarkingScheme(
   lo_code: string,
   level: string,
   year: int,
-) -> EnglMarkingScheme {
+  pdf_pages: string,
+) -> EnglishMarkingScheme {
   client minimax
   prompt #"
-    You are the English marking scheme specialist.
+    Generate the canonical English marking scheme for LO code
+    { lo_code } at level { level } year { year } from these PDF pages:
+    { pdf_pages }
+    return a EnglishMarkingScheme.
   "#
 }
 
-function GenerateEnglFormativeItem(
+function GenerateEnglishFormativeItem(
   lo_code: string,
   difficulty: int,
   level: string,
   topic: string,
-  evidence: string?,
-) -> EnglFormativeItem {
+  pdf_pages: string,
+) -> EnglishFormativeItem {
   client minimax
   prompt #"
-    You are the English formative item specialist.
+    Generate the canonical English formative item for LO code
+    { lo_code } at difficulty { difficulty } at level { level } topic
+    { topic } from these PDF pages:
+    { pdf_pages }
+    return a EnglishFormativeItem.
   "#
 }
 
-function ScoreEnglFormativeResponse(
+function ScoreEnglishFormativeResponse(
   item_id: string,
   student_response: string,
   response_format: string,
   time_taken_seconds: int,
   hints_used: int,
-) -> EnglFormativeResponse {
+  rubric_text: string,
+) -> EnglishFormativeResponse {
   client minimax
   prompt #"
-    You are the English formative response scoring specialist.
+    Score the English response for item_id { item_id } student_response
+    { student_response } in format { response_format } with time
+    { time_taken_seconds }s and hints { hints_used } against the rubric:
+    { rubric_text }
+    return a EnglishFormativeResponse.
   "#
 }

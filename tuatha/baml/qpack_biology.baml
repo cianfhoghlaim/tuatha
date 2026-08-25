@@ -1,8 +1,8 @@
-// tuatha/baml/qpack_applied_mathematics.baml — canonical BAML contracts for the NCCA Applied Mathematics subject.
+// tuatha/baml/qpack_biology.baml — canonical BAML contracts for the NCCA Biology subject.
 
 client minimax
 
-class AppMathSyllabusTopic {
+class BiologySyllabusTopic {
   ncca_code       string
   title_en        string
   title_ga        string
@@ -14,7 +14,7 @@ class AppMathSyllabusTopic {
   provenance_sha256 string
 }
 
-class AppMathPastPaper {
+class BiologyPastPaper {
   year         int
   level        string
   paper        int
@@ -22,7 +22,7 @@ class AppMathPastPaper {
   provenance_sha256 string
 }
 
-class AppMathMarkingScheme {
+class BiologyMarkingScheme {
   lo_code       string
   level         string
   year          int
@@ -31,7 +31,7 @@ class AppMathMarkingScheme {
   provenance_sha256 string
 }
 
-class AppMathFormativeItem {
+class BiologyFormativeItem {
   lo_code       string
   difficulty    int
   level         string
@@ -42,7 +42,7 @@ class AppMathFormativeItem {
   evidence_pdfs        list<string>
 }
 
-class AppMathFormativeResponse {
+class BiologyFormativeResponse {
   item_id           string
   student_response  string
   grade             float
@@ -53,82 +53,82 @@ class AppMathFormativeResponse {
 }
 
 
-function GenerateAppMathSyllabus(
+function GenerateBiologySyllabus(
   lo_code: string,
   level: string,
   language: string,
   pdf_pages: string,
-) -> AppMathSyllabusTopic {
+) -> BiologySyllabusTopic {
   client minimax
   prompt #"
-    Generate the canonical Applied Mathematics syllabus topic for LO code { lo_code }
+    Generate the canonical Biology syllabus topic for LO code { lo_code }
     at level { level } in language { language } from these PDF pages:
     { pdf_pages }
-    return a AppMathSyllabusTopic.
+    return a BiologySyllabusTopic.
   "#
 }
 
-function GenerateAppMathPastPaper(
+function GenerateBiologyPastPaper(
   year: int,
   level: string,
   paper: int,
   pdf_pages: string,
-) -> AppMathPastPaper {
+) -> BiologyPastPaper {
   client minimax
   prompt #"
-    Generate the canonical Applied Mathematics past paper for year { year }
+    Generate the canonical Biology past paper for year { year }
     at level { level } paper { paper } from these PDF pages:
     { pdf_pages }
-    return a AppMathPastPaper.
+    return a BiologyPastPaper.
   "#
 }
 
-function GenerateAppMathMarkingScheme(
+function GenerateBiologyMarkingScheme(
   lo_code: string,
   level: string,
   year: int,
   pdf_pages: string,
-) -> AppMathMarkingScheme {
+) -> BiologyMarkingScheme {
   client minimax
   prompt #"
-    Generate the canonical Applied Mathematics marking scheme for LO code
+    Generate the canonical Biology marking scheme for LO code
     { lo_code } at level { level } year { year } from these PDF pages:
     { pdf_pages }
-    return a AppMathMarkingScheme.
+    return a BiologyMarkingScheme.
   "#
 }
 
-function GenerateAppMathFormativeItem(
+function GenerateBiologyFormativeItem(
   lo_code: string,
   difficulty: int,
   level: string,
   topic: string,
   pdf_pages: string,
-) -> AppMathFormativeItem {
+) -> BiologyFormativeItem {
   client minimax
   prompt #"
-    Generate the canonical Applied Mathematics formative item for LO code
+    Generate the canonical Biology formative item for LO code
     { lo_code } at difficulty { difficulty } at level { level } topic
     { topic } from these PDF pages:
     { pdf_pages }
-    return a AppMathFormativeItem.
+    return a BiologyFormativeItem.
   "#
 }
 
-function ScoreAppMathFormativeResponse(
+function ScoreBiologyFormativeResponse(
   item_id: string,
   student_response: string,
   response_format: string,
   time_taken_seconds: int,
   hints_used: int,
   rubric_text: string,
-) -> AppMathFormativeResponse {
+) -> BiologyFormativeResponse {
   client minimax
   prompt #"
-    Score the Applied Mathematics response for item_id { item_id } student_response
+    Score the Biology response for item_id { item_id } student_response
     { student_response } in format { response_format } with time
     { time_taken_seconds }s and hints { hints_used } against the rubric:
     { rubric_text }
-    return a AppMathFormativeResponse.
+    return a BiologyFormativeResponse.
   "#
 }

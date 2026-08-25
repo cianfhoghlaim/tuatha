@@ -1,153 +1,134 @@
-// tuatha.baml.qpack_mathematics — the canonical BAML functions for the
-Mathematics NCCA Leaving Certificate subject.
-//
-// The 5 functions mirror the 5 per-subject tools
-// (syllabus_lookup + past_paper_lookup + marking_scheme_lookup
-// + formative_item_generate + response_score). All 5 functions
-// emit typed BAML classes that codegen to Pydantic + Zod + Convex +
-// DuckLake DDL.
-*/
-client<llm> litellm_proxy
+// tuatha/baml/qpack_mathematics.baml — canonical BAML contracts for the NCCA Mathematics subject.
 
-class MathSyllabusTopic {
-  ncca_code string
-  title_en string
-  title_ga string
-  description_en string
-  description_ga string
-  source_pdf string
-  source_page int
+client minimax
+
+class MathsSyllabusTopic {
+  ncca_code       string
+  title_en        string
+  title_ga        string
+  description_en  string
+  description_ga  string
+  level           string
+  source_pdf      string
+  source_page     int
+  provenance_sha256 string
 }
 
-class MathPastPaper {
-  year int
-  level string
-  paper int
-  paper_url string
+class MathsPastPaper {
+  year         int
+  level        string
+  paper        int
+  paper_url    string
+  provenance_sha256 string
 }
 
-class MathMarkingScheme {
-  lo_code string
-  level string
-  year int
-  scheme_url string
-  criteria list<string>
+class MathsMarkingScheme {
+  lo_code       string
+  level         string
+  year          int
+  scheme_url    string
+  criteria      list<string>
+  provenance_sha256 string
 }
 
-class MathFormativeItem {
-  lo_code string
-  difficulty int
-  level string
-  multiple_choice string
-  short_answer string
-  extended_response string
-  evidence string?
+class MathsFormativeItem {
+  lo_code       string
+  difficulty    int
+  level         string
+  topic         string
+  multiple_choice    string
+  short_answer       string
+  extended_response  string
+  evidence_pdfs        list<string>
 }
 
-class MathFormativeResponse {
-  item_id string
-  student_response string
-  grade float
-  feedback_en string
-  feedback_ga string
-  badge_emitted bool
+class MathsFormativeResponse {
+  item_id           string
+  student_response  string
+  grade             float
+  feedback_en       string
+  feedback_ga       string
+  badge_emitted     bool
+  rubric_evidence   list<string>
 }
 
-function GenerateMathSyllabus(
+
+function GenerateMathsSyllabus(
   lo_code: string,
   level: string,
   language: string,
-) -> MathSyllabusTopic {
+  pdf_pages: string,
+) -> MathsSyllabusTopic {
   client minimax
   prompt #"
-    You are the Mathematics syllabus specialist for the NCCA
-    Leaving Certificate curriculum.
-
-    Given the LO code {{ lo_code }} at level {{ level }} in
-    language {{ language }}, generate the canonical
-    MathSyllabusTopic record with the ncca_code + the title
-    (en + ga) + the description (en + ga) + the source_pdf
-    path + the source_page.
-
-    The result must be a valid MathSyllabusTopic BAML class.
+    Generate the canonical Mathematics syllabus topic for LO code { lo_code }
+    at level { level } in language { language } from these PDF pages:
+    { pdf_pages }
+    return a MathsSyllabusTopic.
   "#
 }
 
-function GenerateMathPastPaper(
+function GenerateMathsPastPaper(
   year: int,
   level: string,
   paper: int,
-) -> MathPastPaper {
+  pdf_pages: string,
+) -> MathsPastPaper {
   client minimax
   prompt #"
-    You are the Mathematics past paper specialist.
-
-    Given year {{ year }} at level {{ level }} paper {{ paper }},
-    generate the canonical MathPastPaper record with the
-    year + level + paper + paper_url.
-
-    The result must be a valid MathPastPaper BAML class.
+    Generate the canonical Mathematics past paper for year { year }
+    at level { level } paper { paper } from these PDF pages:
+    { pdf_pages }
+    return a MathsPastPaper.
   "#
 }
 
-function GenerateMathMarkingScheme(
+function GenerateMathsMarkingScheme(
   lo_code: string,
   level: string,
   year: int,
-) -> MathMarkingScheme {
+  pdf_pages: string,
+) -> MathsMarkingScheme {
   client minimax
   prompt #"
-    You are the Mathematics marking scheme specialist.
-
-    Given the LO code {{ lo_code }} at level {{ level }} for year
-    {{ year }}, generate the canonical MathMarkingScheme record
-    with the lo_code + level + year + scheme_url + criteria.
-
-    The result must be a valid MathMarkingScheme BAML class.
+    Generate the canonical Mathematics marking scheme for LO code
+    { lo_code } at level { level } year { year } from these PDF pages:
+    { pdf_pages }
+    return a MathsMarkingScheme.
   "#
 }
 
-function GenerateMathFormativeItem(
+function GenerateMathsFormativeItem(
   lo_code: string,
   difficulty: int,
   level: string,
   topic: string,
-  evidence: string?,
-) -> MathFormativeItem {
+  pdf_pages: string,
+) -> MathsFormativeItem {
   client minimax
   prompt #"
-    You are the Mathematics formative item specialist.
-
-    Given the LO code {{ lo_code }} at difficulty {{ difficulty }}
-    at level {{ level }} for topic {{ topic }} with evidence
-    {{ evidence }}, generate the canonical MathFormativeItem
-    record with the lo_code + difficulty + level + the
-    multiple_choice + short_answer + extended_response.
-
-    The result must be a valid MathFormativeItem BAML class.
+    Generate the canonical Mathematics formative item for LO code
+    { lo_code } at difficulty { difficulty } at level { level } topic
+    { topic } from these PDF pages:
+    { pdf_pages }
+    return a MathsFormativeItem.
   "#
 }
 
-function ScoreMathFormativeResponse(
+function ScoreMathsFormativeResponse(
   item_id: string,
   student_response: string,
   response_format: string,
   time_taken_seconds: int,
   hints_used: int,
-) -> MathFormativeResponse {
+  rubric_text: string,
+) -> MathsFormativeResponse {
   client minimax
   prompt #"
-    You are the Mathematics formative response scoring
-    specialist.
-
-    Given the item_id {{ item_id }} with student_response
-    {{ student_response }} in response_format
-    {{ response_format }} with time_taken_seconds
-    {{ time_taken_seconds }} and hints_used {{ hints_used }},
-    generate the canonical MathFormativeResponse record with
-    the grade (0-1) + the bilingual feedback (en + ga) +
-    the badge_emitted flag.
-
-    The result must be a valid MathFormativeResponse BAML class.
+    Score the Mathematics response for item_id { item_id } student_response
+    { student_response } in format { response_format } with time
+    { time_taken_seconds }s and hints { hints_used } against the rubric:
+    { rubric_text }
+    return a MathsFormativeResponse.
   "#
 }
