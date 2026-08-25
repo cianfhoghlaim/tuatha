@@ -1,0 +1,22 @@
+{
+  "name": "tuatha-app-mmo",
+  "version": "0.1.0",
+  "description": "The British Isles Formative Assessment MMO client (Phase 4 surface)",
+  "main": "main.tsx",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "@tanstack/react-router": "^1.50.0",
+    "@tanstack/react-query": "^5.0.0",
+    "@tanstack/react-start": "^1.0.0",
+    "hono": "^4.0.0",
+    "duckdb": "^1.0.0",
+    "pypdf": "^4.0.0",
+    "vitest": "^1.0.0"
+  }
+}
