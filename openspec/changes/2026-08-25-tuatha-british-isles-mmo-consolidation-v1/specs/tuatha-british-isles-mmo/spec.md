@@ -63,19 +63,39 @@ The system SHALL provide 3 educational agents under
    (research paper retrieval + citation extraction)
 2. `celtic_grammar_agent` — the Celtic grammar specialist
    (Irish + Welsh + Scottish Gaelic + Breton + Cornish + Manx)
-3. `celtic_morphology_agent` — the Celtic morphology specialist
-   (verb conjugation + noun declension + adjective agreement)
+3. `celtic_morphology_agent` — the Celtic morphology
+   specialist (verb conjugation + noun declension +
+   adjective agreement)
+
+#### Scenario: A Gaeilge teacher asks the Celtic grammar agent about dialectical forms
+
+- **GIVEN** the user is authenticated in the new `tuatha/`
+  project
+- **WHEN** the user asks "what is the difference between the
+  Connacht and Ulster dialectical forms of the verb 'bí'"
+- **THEN** the `celtic_grammar_agent` routes to the
+  `qpack_gaeilge.baml` extractor's grammar sub-function
+- **AND** returns the 2 dialectical forms side-by-side with the
+  relevant excerpts from the CELT corpus
 
 ### Requirement: 4 BIEP hackathon features
-
 The system SHALL provide 4 BIEP hackathon features under
 `tuatha/agents/hackathon/` (per the
 `2026-08-21-biiep-hackathon-agentic-educational-system-v1/`):
 
 1. `marking_grader` — the Adaptive Marking Grader
 2. `adaptive_tutor` — the Adaptive Tutor Chat
-3. `equivalency_generator` — the Cross-Jurisdiction Equivalency
+3. `equivalency_generator` — the Cross-Jurisdiction Equivalency Generator
 4. `curriculum_change_sensor` — the Curriculum Change Detection Sensor
+
+#### Scenario: A teacher uses the Adaptive Marking Grader
+
+- **GIVEN** the teacher uploads a student's PDF answer + the
+  official NCCA marking scheme
+- **WHEN** the `marking_grader` workflow runs
+- **THEN** the `tuatha/baml/marking_grader.baml` extractor
+  matches the answer against the marking scheme
+- **AND** returns a grade + personalised feedback in plain English
 
 ### Requirement: 1 media_intel pipeline
 
@@ -87,6 +107,15 @@ extractor functions (comic / prose / animation / gameplay /
 official_document) + the 5 corpus introspection tools
 (list_sources / list_descriptors_by_class / summarise_corpus /
 compare_class_consistency / search_descriptors).
+
+#### Scenario: A research user asks the media_descriptor_agent for cross-medium consistency
+
+- **GIVEN** the media_intel corpus has 100+ rows per class
+- **WHEN** the user calls `compare_class_consistency("fire")`
+- **THEN** the agent returns the per-medium cosine similarity
+  scores + the consistency score (inverse of variance)
+- **AND** the response identifies the most consistently
+  described source class for the `fire` element
 
 ### Requirement: The British Isles Formative Assessment MMO theme
 
