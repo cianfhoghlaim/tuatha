@@ -1,28 +1,10 @@
-"""tuatha.notebooks.cross_subject — the marimo notebook for cross-medium consistency score.
-"""
+"""tuatha.notebooks.cross_subject — the cross_subject operator notebook."""
 import marimo
-
 __generated_with = "0.10.0"
 app = marimo.App(width="medium")
-
+app.title = "cross_subject"
 
 @app.cell
-def __():
+def _():
     import marimo as mo
-    return (mo,)
-
-
-@app.cell
-def __(mo):
-    mo.md(
-        f"""
-        # Cross Subject Marimo Notebook
-
-        The cross-medium consistency score.
-        """
-    )
-    return (mo,)
-
-
-if __name__ == "__main__":
-    app.run()
+    return mo,

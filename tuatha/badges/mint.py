@@ -1,18 +1,13 @@
-"""tuatha.badges.mint — the badge minting logic (the canonical mint() function that emits badges to the Cognee + Letta memory banks).
-
-Per the educational-credential badge system (replaces the
-legacy Crypteolas financial token from the prior pivot).
-"""
+"""tuatha.badges.mint — the BadgeMintService (queries baml_extractions + emits rung-5-complete badges)."""
 from __future__ import annotations
-
+from dataclasses import dataclass
 from typing import Any
 
 
+@dataclass
 class MintStub:
-    """The mint stub class."""
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        pass
+    name: str = "mint"
+    def __init__(self, *args: Any, **kwargs: Any) -> None: pass
 
 
 __all__ = ["MintStub"]
