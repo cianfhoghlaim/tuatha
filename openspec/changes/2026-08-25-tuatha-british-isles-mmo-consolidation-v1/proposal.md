@@ -2,7 +2,7 @@
 
 ## Why
 
-The Cianfhoghlaim monorepo (`/Users/cianmacandeisigh/dev/kings_college_galway/`)
+The Cianfhoghlaim monorepo (`/Users/cianmacandeisigh/dev/cianfhoghlaim/`)
 previously carried the British Isles Formative Assessment MMO in
 3 scattered locations that were NOT interconnected:
 
@@ -28,7 +28,7 @@ The canonical openspec spec
 
 The change consolidates everything into a **single coherent
 independent sub-project** at
-`/Users/cianmacandeisigh/dev/kings_college_galway/tuatha/`
+`/Users/cianmacandeisigh/dev/tuatha/`
 (the new top-level `tuatha/` dir; the canonical GitHub repo at
 `github.com/cianfhoghlaim/tuatha.git`).
 

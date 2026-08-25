@@ -1,7 +1,7 @@
 """tuatha — the British Isles Formative Assessment MMO.
 
 The canonical Python sub-namespace for the new
-`/Users/cianmacandeisigh/dev/kings_college_galway/tuatha/`
+`/Users/cianmacandeisigh/dev/tuatha/`
 independent sub-project (will become
 `github.com/cianmacandeisigh/tuatha.git`).
 

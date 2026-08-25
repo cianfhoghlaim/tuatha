@@ -349,7 +349,7 @@ tuatha/                              # the new independent repo
 ## The cross-repo surface
 
 The `tuatha/` project lives at
-`/Users/cianmacandeisigh/dev/kings_college_galway/tuatha/` —
+`/Users/cianmacandeisigh/dev/tuatha/` —
 a sub-dir of the parent `kings_college_galway/` (the cianfhoghlaim
 + leabharlann + bonneagar monorepo). The new project is designed
 to become its own independent GitHub repo at

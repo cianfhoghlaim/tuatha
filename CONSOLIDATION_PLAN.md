@@ -2,7 +2,7 @@
 
 > **The British Isles Formative Assessment MMO** — the consolidated,
 > independent Tuatha project. A self-contained Python sub-repo at
-> `/Users/cianmacandeisigh/dev/kings_college_galway/tuatha/` that
+> `/Users/cianmacandeisigh/dev/tuatha/` that
 > supersedes the scattered `agents/tuatha/` and the prior
 > top-level `tuatha/` skeleton.
 
@@ -37,7 +37,7 @@ supersedes the deprecated `tuatha-platform` spec) says:
 
 The user is consolidating everything into a single coherent
 **independent sub-project** at
-`/Users/cianmacandeisigh/dev/kings_college_galway/tuatha/`
+`/Users/cianmacandeisigh/dev/tuatha/`
 that will become its own GitHub repo
 (`github.com/cianmacandeisigh/tuatha.git`), similar to the
 prior repo split that produced `kings_college_galway/leabharlann/`
@@ -58,13 +58,13 @@ and `kings_college_galway/bonneagar/` as independent repos.
 ### Step 1 — Archive the prior state
 
 ```
-mkdir -p /Users/cianmacandeisigh/dev/kings_college_galway/tuatha/old/
-mv /Users/cianmacandeisigh/dev/kings_college_galway/tuatha/{*,.[!.]*} \
-   /Users/cianmacandeisigh/dev/kings_college_galway/tuatha/old/prior_top_level_tuatha/
+mkdir -p /Users/cianmacandeisigh/dev/tuatha/old/
+mv /Users/cianmacandeisigh/dev/tuatha/{*,.[!.]*} \
+   /Users/cianmacandeisigh/dev/tuatha/old/prior_top_level_tuatha/
 mv /Users/cianmacandeisigh/dev/kings_college_galway/agents/tuatha/{*,.[!.]*} \
-   /Users/cianmacandeisigh/dev/kings_college_galway/tuatha/old/scattered_agents_tuatha/
+   /Users/cianmacandeisigh/dev/tuatha/old/scattered_agents_tuatha/
 # Hard-archive the 3 deprecated theming references
-mkdir -p /Users/cianmacandeisigh/dev/kings_college_galway/tuatha/old/legacy_theming/
+mkdir -p /Users/cianmacandeisigh/dev/tuatha/old/legacy_theming/
 # Find every Babylon.js / SpacetimeDB / Crypteolas file across the repo
 # (skills, openspec specs, anywhere) and move to legacy_theming/
 ```

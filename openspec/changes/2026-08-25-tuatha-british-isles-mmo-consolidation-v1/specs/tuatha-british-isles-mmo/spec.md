@@ -5,7 +5,7 @@
 `tuatha-british-isles-mmo` is the canonical capability for the
 **Tuatha** project — the British Isles Formative Assessment MMO.
 The implementation lives at the new top-level `tuatha/` dir
-at `/Users/cianmacandeisigh/dev/kings_college_galway/tuatha/`
+at `/Users/cianmacandeisigh/dev/tuatha/`
 (the independent GitHub repo at `github.com/cianfhoghlaim/tuatha`).
 
 The capability is the implementation surface for the

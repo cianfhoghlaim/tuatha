@@ -4,7 +4,7 @@
 > canonical implementation of the
 > [`cianfhoghlaim-educational-mmo`](../../openspec/specs/cianfhoghlaim-educational-mmo/spec.md)
 > spec. A self-contained independent sub-project at
-> `/Users/cianmacandeisigh/dev/kings_college_galway/tuatha/`
+> `/Users/cianmacandeisigh/dev/tuatha/`
 > (the new top-level `tuatha/` dir; will become the independent
 > GitHub repo at `github.com/cianmacandeisigh/tuatha.git`).
 
@@ -34,7 +34,7 @@ canonical spec added by the consolidation change).
 
 ```bash
 # Install
-cd /Users/cianmacandeisigh/dev/kings_college_galway/tuatha/
+cd /Users/cianmacandeisigh/dev/tuatha/
 uv sync
 
 # Test
