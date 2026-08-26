@@ -46,7 +46,7 @@ uv run mypy tuatha/
 openspec validate --all --strict
 ```
 
-## The 8 NCCA subject agents (per `tuatha/subjects/`)
+## The 14 subject agents (per `tuatha/subjects/`)
 
 | Subject | File | 5 tools per subject |
 |:--|:--|:--|
@@ -189,11 +189,11 @@ The 10 ADK tools:
 ## Thematic guidelines
 
 The new tuatha/ project ADOPTS the British Isles Formative
-Assessment MMO theme. The 8 NCCA Leaving Certificate subjects
+Assessment MMO theme. The 14 subjects (8 NCCA + 6 NCCA-adjacent per the 2026-08-26 subject-expansion change)
 are the canonical content surface.
 
 **KEEPS** (the technological choices):
-- The 8 NCCA subject agents
+- The 14 subject agents (8 NCCA + 6 NCCA-adjacent)
 - The 5 per-subject tools
 - The 3 educational agents
 - The 4 BIEP hackathon features

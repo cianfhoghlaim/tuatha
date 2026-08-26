@@ -75,7 +75,7 @@ tuatha/                              # GitHub: github.com/cianfhoghlaim/tuatha
 │   └── mythology/
 │       └── celtic_mythology.py      # 467-line lancedb + pydantic (the real tool, not the stub)
 ├── tuatha/
-│   ├── subjects/                    # the 8 NCCA subject agents
+│   ├── subjects/                    # the 14 subject agents (8 NCCA + 6 NCCA-adjacent)
 │   ├── tools/                       # 40 per-subject tools
 │   ├── agents/
 │   │   ├── media_intel/             # the 10-tool descriptor

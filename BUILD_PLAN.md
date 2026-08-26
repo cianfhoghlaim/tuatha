@@ -24,13 +24,13 @@
 | **Phase 3** (build from scratch) | 3.1 | Initialize the new git repo at `github.com/cianmacandeisigh/tuatha.git` + add `origin` | 0 |
 | **Phase 3** (build from scratch) | 3.2 | Author the package meta: `pyproject.toml` + `mise.toml` + `LICENSE` + `README.md` + `AGENTS.md` + `DEVELOPMENT.md` | 6 |
 | **Phase 3** (build from scratch) | 3.3 | Author the canonical Python package: `tuatha/__init__.py` + `tuatha/{config,routing,orchestrator,operator,cross_subject,workflows}.py` | 7 |
-| **Phase 3** (build from scratch) | 3.4 | Author the 8 subject agents: `tuatha/subjects/{mathematics,applied_mathematics,chemistry,computer_science,english,gaeilge,geography,history}.py` | 8 |
-| **Phase 3** (build from scratch) | 3.5 | Author the 40 tools: `tuatha/tools/<subject>_<tool>.py` (8 subjects × 5 tools) | 40 |
+| **Phase 3** (build from scratch) | 3.4 | Author the 14 subject agents: `tuatha/subjects/{mathematics,applied_mathematics,chemistry,geography,history,english,gaeilge,computer_science,accounting,biology,business,french,irish,physics}.py` | 8 |
+| **Phase 3** (build from scratch) | 3.5 | Author the 70 tools: `tuatha/tools/<subject>_<tool>.py` (14 subjects × 5 tools) | 40 |
 | **Phase 3** (build from scratch) | 3.6 | Author the 3 educational agents: `tuatha/agents/educational/{academic_history_agent,celtic_grammar_agent,celtic_morphology_agent}.py` | 3 |
 | **Phase 3** (build from scratch) | 3.7 | Author the media_intel module: `tuatha/agents/media_intel/{__init__,records,classifier,explorer,media_descriptor_agent}.py` | 5 |
 | **Phase 3** (build from scratch) | 3.8 | Author the 4 BIEP hackathon features: `tuatha/hackathon/{marking_grader,adaptive_tutor,equivalency_generator,curriculum_change_sensor}.py` | 4 |
 | **Phase 3** (build from scratch) | 3.9 | Author the BAML surface: `tuatha/baml/{qpack_<subject>,marking_grader,adaptive_tutor,equivalency_table,media_descriptor,clients}.baml` (the 8 subject qpack + 3 hackathon + 1 media_descriptor + 1 clients) | 13 |
-| **Phase 3** (build from scratch) | 3.10 | Author the DLT sources: `tuatha/dlt/{syllabus,past_paper,marking_scheme,formative_item,response_score}/<subject>.py` (8 subjects × 5 categories) | 40 |
+| **Phase 3** (build from scratch) | 3.10 | Author the DLT sources: `tuatha/dlt/{syllabus,past_paper,marking_scheme,formative_item,response_score}/<subject>.py` (14 subjects × 5 categories) | 40 |
 | **Phase 3** (build from scratch) | 3.11 | Author the Dagster asset groups: `tuatha/dagster/{per_subject,hackathon,media_intel}.py` | 3 |
 | **Phase 3** (build from scratch) | 3.12 | Author the CocoIndex v1 Apps: `tuatha/cocoindex/{per_subject,cross_subject}.py` | 2 |
 | **Phase 3** (build from scratch) | 3.13 | Author the marimo notebooks: `tuatha/notebooks/{per_subject,cross_subject}.py` | 2 |
@@ -60,7 +60,7 @@ tuatha/
 ├── LICENSE                              (MIT, permissive)
 ├── docker-compose.yml                   (the local-dev stack)
 ├── tuatha/                                # the canonical Python sub-namespace
-│   ├── __init__.py                      (re-exports: 8 subject agents + 3 educational + 4 hackathon + 1 media_intel + 1 orchestrator + 1 operator + 1 cross_subject)
+│   ├── __init__.py                      (re-exports: 14 subject agents + 3 educational + 4 hackathon + 1 media_intel + 1 orchestrator + 1 operator + 1 cross_subject)
 │   ├── config.py                         (LiteLLM + Langfuse + Cognee + Letta + BAML clients config)
 │   ├── routing.py                        (the SubjectAgentWiring factory + register in AGENT_REGISTRY)
 │   ├── orchestrator.py                   (the TuathaOrchestrator)
@@ -74,7 +74,7 @@ tuatha/
 │   │   ├── __init__.py
 │   │   ├── __main__.py
 │   │   └── server.py
-│   ├── subjects/                         (the 8 NCCA subject agents)
+│   ├── subjects/                         (the 14 subject agents: 8 NCCA + 6 NCCA-adjacent)
 │   │   ├── __init__.py                  (re-exports all 8 subject_agent LlmAgent instances)
 │   │   ├── mathematics.py
 │   │   ├── applied_mathematics.py
@@ -163,7 +163,7 @@ tuatha/
 │   │   ├── equivalency_table.baml
 │   │   ├── media_descriptor.baml
 │   │   └── clients.baml
-│   ├── dlt/                              (the consolidated DLT sources: 8 subjects × 5 categories = 40 + the 3 educational + the 4 hackathon + the media_intel)
+│   ├── dlt/                              (the consolidated DLT sources: 14 subjects × 5 categories = 70 + the 3 educational + the 4 hackathon + the media_intel)
 │   │   ├── __init__.py
 │   │   ├── syllabus/<subject>.py
 │   │   ├── past_paper/<subject>.py
@@ -251,7 +251,7 @@ tuatha/
 | 3.6 | 3 educational agents: `tuatha/agents/educational/{academic_history_agent,celtic_grammar_agent,celtic_morphology_agent}.py` + `__init__.py` |
 | 3.7 | 5 media_intel files: `tuatha/agents/media_intel/{__init__,records,classifier,explorer,media_descriptor_agent}.py` |
 | 3.8 | 4 hackathon features: `tuatha/agents/hackathon/{marking_grader,adaptive_tutor,equivalency_generator,curriculum_change_sensor}.py` + `__init__.py` |
-| 3.9 | 13 BAML files: `tuatha/baml/{qpack_<subject>,marking_grader,adaptive_tutor,equivalency_table,media_descriptor,clients}.baml` |
+| 3.9 | 20 BAML files: `tuatha/baml/{qpack_<subject>×14,marking_grader,adaptive_tutor,equivalency_generator,media_descriptor,clients}.baml` |
 | 3.10 | 40 DLT sources: `tuatha/dlt/{syllabus,past_paper,marking_scheme,formative_item,response_score}/<subject>.py` |
 | 3.11 | 3 Dagster modules: `tuatha/dagster/{per_subject,hackathon,media_intel}.py` |
 | 3.12 | 4 CocoIndex apps: `tuatha/cocoindex/{per_subject,cross_subject,hackathon,media_intel}.py` |
