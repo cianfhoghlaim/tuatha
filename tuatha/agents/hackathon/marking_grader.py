@@ -18,7 +18,7 @@ _wire = build_wire(
     baml_prefix="MarkGrade",
     langfuse_trace_name="agent.marking_grader.<verb>",
     cognee_dataset="oideachais_marking_grader",
-    letta_agent_id="kcg-marking-grader-agent",
+    letta_agent_id="cianfhoghlaim-marking-grader-agent",
 )
 
 config = TuathaConfig.from_env()

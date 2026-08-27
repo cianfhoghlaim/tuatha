@@ -6,11 +6,16 @@ Per the centralized-registry contract:
   pattern
 - Cognee dataset naming follows the oideachais_<jurisdiction>_<subject>
   pattern
-- Letta agent IDs follow the kcg-<subject>-agent pattern
+- Letta agent IDs follow the cianfhoghlaim-<subject>-agent pattern
 - BAML client naming follows the MediaDesc + <Subject> patterns
 
 This module exposes the 5 config dataclasses that all the
 agents + orchestrator + operator import.
+
+# 2026-08-27 KCG rename — Letta agent IDs rotated from `kcg-` to
+# `cianfhoghlaim-` prefix. Any persisted Letta agent state for old IDs
+# is orphaned; see openspec/changes/2026-08-27-tuatha-let-ta-id-rotation-v1/
+# for the state-migration plan.
 """
 from __future__ import annotations
 
@@ -73,10 +78,10 @@ class LiteLlmConfig:
             try:
                 return model_for(family, actual_role)
             except KeyError:
-                # Final fallback: return the kcg-prefixed stub.
-                return f"kcg-{family}-{actual_role}"
+                # Final fallback: return the cianfhoghlaim-prefixed stub.
+                return f"cianfhoghlaim-{family}-{actual_role}"
         # Graceful fallback for unit tests in isolation.
-        return f"kcg-{family}-{role}"
+        return f"cianfhoghlaim-{family}-{role}"
 
 
 # ── Langfuse configuration ────────────────────────────────────────
@@ -144,7 +149,7 @@ class LettaConfig:
     """The canonical Letta agent ID configuration.
 
     All agents in the new tuatha/ project use the
-    `kcg-<subject>-agent` agent ID pattern.
+    `cianfhoghlaim-<subject>-agent` agent ID pattern.
     """
 
     base_url: str = field(
@@ -155,7 +160,7 @@ class LettaConfig:
     api_key: str = field(
         default_factory=lambda: os.environ.get("LETTA_API_KEY", "")
     )
-    agent_id_pattern: str = "kcg-{subject}-agent"
+    agent_id_pattern: str = "cianfhoghlaim-{subject}-agent"
 
     def agent_id(self, subject: str) -> str:
         """Build the canonical Letta agent ID for a subject."""

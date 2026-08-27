@@ -34,7 +34,7 @@ async def score_math_response(
         "feedback_en": f"Strong work on {item_id}. Next step: ...",
         "feedback_ga": f"Obair mhaith ar {item_id}. An chéad chéim eile: ...",
         "badge_emitted": grade >= 0.8,
-        "badge_id": f"kcg-mathematics-{item_id}-{grade:.2f}" if grade >= 0.8 else None,
+        "badge_id": f"cianfhoghlaim-mathematics-{item_id}-{grade:.2f}" if grade >= 0.8 else None,
         "status": "scored",
     }
 

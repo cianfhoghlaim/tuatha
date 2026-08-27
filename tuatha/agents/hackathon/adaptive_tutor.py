@@ -16,7 +16,7 @@ _wire = build_wire(
     baml_prefix="AdaptTutor",
     langfuse_trace_name="agent.adaptive_tutor.<verb>",
     cognee_dataset="oideachais_adaptive_tutor",
-    letta_agent_id="kcg-adaptive-tutor-agent",
+    letta_agent_id="cianfhoghlaim-adaptive-tutor-agent",
 )
 
 config = TuathaConfig.from_env()

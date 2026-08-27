@@ -30,7 +30,7 @@ _wire = build_wire(
     baml_prefix="Gael",
     langfuse_trace_name="agent.gaeilge.<verb>",
     cognee_dataset="oideachais_lc_gaeilge",
-    letta_agent_id="kcg-gaeilge-agent",
+    letta_agent_id="cianfhoghlaim-gaeilge-agent",
 )
 
 config = TuathaConfig.from_env()

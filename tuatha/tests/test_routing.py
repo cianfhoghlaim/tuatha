@@ -219,7 +219,7 @@ def test_each_wire_has_cognee_dataset() -> None:
 
 
 def test_each_wire_has_letta_agent_id() -> None:
-    """Every wire carries a `kcg-<subject>-agent` Letta agent ID."""
+    """Every wire carries a `cianfhoghlaim-<subject>-agent` Letta agent ID."""
     for wire in routing.SUBJECT_WIRING_REGISTRY.values():
-        assert wire.letta_agent_id.startswith("kcg-")
+        assert wire.letta_agent_id.startswith("cianfhoghlaim-")
         assert wire.letta_agent_id.endswith("-agent")

@@ -18,7 +18,7 @@ _wire = build_wire(
     baml_prefix="CeltGram",
     langfuse_trace_name="agent.celtic_grammar.<verb>",
     cognee_dataset="oideachais_celtic_grammar",
-    letta_agent_id="kcg-celtic-grammar-agent",
+    letta_agent_id="cianfhoghlaim-celtic-grammar-agent",
 )
 
 config = TuathaConfig.from_env()

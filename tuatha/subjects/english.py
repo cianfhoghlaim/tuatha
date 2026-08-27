@@ -25,7 +25,7 @@ _wire = build_wire(
     baml_prefix="Engl",
     langfuse_trace_name="agent.english.<verb>",
     cognee_dataset="oideachais_lc_english",
-    letta_agent_id="kcg-english-agent",
+    letta_agent_id="cianfhoghlaim-english-agent",
 )
 
 config = TuathaConfig.from_env()

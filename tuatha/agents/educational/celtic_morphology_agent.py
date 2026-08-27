@@ -18,7 +18,7 @@ _wire = build_wire(
     baml_prefix="CeltMorph",
     langfuse_trace_name="agent.celtic_morphology.<verb>",
     cognee_dataset="oideachais_celtic_morphology",
-    letta_agent_id="kcg-celtic-morphology-agent",
+    letta_agent_id="cianfhoghlaim-celtic-morphology-agent",
 )
 
 config = TuathaConfig.from_env()

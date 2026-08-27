@@ -179,7 +179,7 @@ _wire = build_wire(
     baml_prefix="CurrChgSens",
     langfuse_trace_name="agent.curriculum_change_sensor.<verb>",
     cognee_dataset="oideachais_curriculum_change_sensor",
-    letta_agent_id="kcg-curriculum-change-sensor-agent",
+    letta_agent_id="cianfhoghlaim-curriculum-change-sensor-agent",
 )
 
 

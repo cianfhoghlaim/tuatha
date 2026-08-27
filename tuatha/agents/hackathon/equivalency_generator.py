@@ -18,7 +18,7 @@ _wire = build_wire(
     baml_prefix="EquivGen",
     langfuse_trace_name="agent.equivalency_generator.<verb>",
     cognee_dataset="oideachais_equivalency_generator",
-    letta_agent_id="kcg-equivalency-generator-agent",
+    letta_agent_id="cianfhoghlaim-equivalency-generator-agent",
 )
 
 config = TuathaConfig.from_env()

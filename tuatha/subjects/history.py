@@ -25,7 +25,7 @@ _wire = build_wire(
     baml_prefix="Hist",
     langfuse_trace_name="agent.history.<verb>",
     cognee_dataset="oideachais_lc_history",
-    letta_agent_id="kcg-history-agent",
+    letta_agent_id="cianfhoghlaim-history-agent",
 )
 
 config = TuathaConfig.from_env()

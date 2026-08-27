@@ -25,7 +25,7 @@ _wire = build_wire(
     baml_prefix="Chem",
     langfuse_trace_name="agent.chemistry.<verb>",
     cognee_dataset="oideachais_lc_chemistry",
-    letta_agent_id="kcg-chemistry-agent",
+    letta_agent_id="cianfhoghlaim-chemistry-agent",
 )
 
 config = TuathaConfig.from_env()

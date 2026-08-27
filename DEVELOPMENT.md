@@ -350,7 +350,7 @@ tuatha/                              # the new independent repo
 
 The `tuatha/` project lives at
 `/Users/cianmacandeisigh/dev/tuatha/` —
-a sub-dir of the parent `kings_college_galway/` (the cianfhoghlaim
+a sub-dir of the parent `cianfhoghlaim/` (the cianfhoghlaim
 + leabharlann + bonneagar monorepo). The new project is designed
 to become its own independent GitHub repo at
 `github.com/cianmacandeisigh/tuatha.git` (per the 2026-08-25
@@ -364,8 +364,8 @@ The cross-repo references are:
 - The back-compat shim at
   `agents/meaisinfhoghlaim/media_intel/__init__.py` re-exports
   the canonical symbols from the new location
-- The sibling repos `kings_college_galway/leabharlann/` +
-  `kings_college_galway/bonneagar/` are unchanged
+- The sibling repos `cianfhoghlaim/leabharlann/` +
+  `cianfhoghlaim/bonneagar/` are unchanged
 
 ---
 

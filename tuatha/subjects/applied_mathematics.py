@@ -26,7 +26,7 @@ _wire = build_wire(
     baml_prefix="AppM",
     langfuse_trace_name="agent.applied_mathematics.<verb>",
     cognee_dataset="oideachais_lc_applied_mathematics",
-    letta_agent_id="kcg-applied-mathematics-agent",
+    letta_agent_id="cianfhoghlaim-applied-mathematics-agent",
 )
 
 config = TuathaConfig.from_env()

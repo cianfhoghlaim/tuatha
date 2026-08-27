@@ -10,7 +10,7 @@
 
 ## 1. Why
 
-The Cianfhoghlaim monorepo (`/Users/cianmacandeisigh/dev/kings_college_galway/`)
+The Cianfhoghlaim monorepo (`~/dev/cianfhoghlaim/`)
 carries the British Isles Formative Assessment MMO in 3 scattered locations:
 
 1. **The `agents/tuatha/` tree** — 61 files (8 subject agents + 40
@@ -40,14 +40,14 @@ The user is consolidating everything into a single coherent
 `/Users/cianmacandeisigh/dev/tuatha/`
 that will become its own GitHub repo
 (`github.com/cianmacandeisigh/tuatha.git`), similar to the
-prior repo split that produced `kings_college_galway/leabharlann/`
-and `kings_college_galway/bonneagar/` as independent repos.
+prior repo split that produced `cianfhoghlaim/leabharlann/`
+and `cianfhoghlaim/bonneagar/` as independent repos.
 
 ## 2. The user-locked decisions (the 4 Q&A answers)
 
 | Decision | Value | Source |
 |:--|:--|:--|
-| Repo URL | `github.com/cianmacandeisigh/tuatha.git` (user-owned, matching the `leabharlann` + `bonneagar` pattern at the parent `kings_college_galway` workspace) | user |
+| Repo URL | `github.com/cianmacandeisigh/tuatha.git` (user-owned, matching the `leabharlann` + `bonneagar` pattern at the parent `cianfhoghlaim` workspace) | user |
 | Module name | `tuatha` (the directory is `tuatha`, the package is `tuatha`, the pyproject declares `name = "tuatha"`, all imports are `tuatha.*`) | user |
 | Scope | **Full scope** — Step 1 (Archive) + Step 2 (Cross-repo refactor) + Step 3 (Build from scratch) | user |
 | 3 educational agents | **Bring them in** under `tuatha/agents/educational/` (academic_history_agent + celtic_grammar_agent + celtic_morphology_agent) | user |
@@ -61,7 +61,7 @@ and `kings_college_galway/bonneagar/` as independent repos.
 mkdir -p /Users/cianmacandeisigh/dev/tuatha/old/
 mv /Users/cianmacandeisigh/dev/tuatha/{*,.[!.]*} \
    /Users/cianmacandeisigh/dev/tuatha/old/prior_top_level_tuatha/
-mv /Users/cianmacandeisigh/dev/kings_college_galway/agents/tuatha/{*,.[!.]*} \
+mv /Users/cianmacandeisigh/dev/cianfhoghlaim/agents/tuatha/{*,.[!.]*} \
    /Users/cianmacandeisigh/dev/tuatha/old/scattered_agents_tuatha/
 # Hard-archive the 3 deprecated theming references
 mkdir -p /Users/cianmacandeisigh/dev/tuatha/old/legacy_theming/
@@ -167,9 +167,9 @@ G7: git push origin main                                                        
 ## 6. The git workflow
 
 - The new `tuatha/` becomes its own git repo (analogous to
-  `kings_college_galway/leabharlann/` and
-  `kings_college_galway/bonneagar/`). The current
-  `kings_college_galway/` monorepo will retain a `tuatha/` directory
+  `cianfhoghlaim/leabharlann/` and
+  `cianfhoghlaim/bonneagar/`). The current
+  `cianfhoghlaim/` monorepo will retain a `tuatha/` directory
   that is a **git worktree** of the new repo, OR the new repo
   replaces the monorepo subdir entirely (operator's call).
 - The default branch is `main` (matching `leabharlann` + `bonneagar`).

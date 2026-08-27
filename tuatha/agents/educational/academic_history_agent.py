@@ -19,7 +19,7 @@ _wire = build_wire(
     baml_prefix="AcadHist",
     langfuse_trace_name="agent.academic_history.<verb>",
     cognee_dataset="oideachais_academic_history",
-    letta_agent_id="kcg-academic-history-agent",
+    letta_agent_id="cianfhoghlaim-academic-history-agent",
 )
 
 config = TuathaConfig.from_env()

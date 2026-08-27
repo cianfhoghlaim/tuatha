@@ -75,7 +75,7 @@ SUBJECT_WIRING_REGISTRY: dict[str, SubjectAgentWiring] = {
         baml_prefix="Math",
         langfuse_trace_name="agent.mathematics.<verb>",
         cognee_dataset="oideachais_lc_mathematics",
-        letta_agent_id="kcg-mathematics-agent",
+        letta_agent_id="cianfhoghlaim-mathematics-agent",
     ),
     "applied_mathematics": build_wire(
         ncca_subject="applied_mathematics",
@@ -84,7 +84,7 @@ SUBJECT_WIRING_REGISTRY: dict[str, SubjectAgentWiring] = {
         baml_prefix="AppM",
         langfuse_trace_name="agent.applied_mathematics.<verb>",
         cognee_dataset="oideachais_lc_applied_mathematics",
-        letta_agent_id="kcg-applied-mathematics-agent",
+        letta_agent_id="cianfhoghlaim-applied-mathematics-agent",
     ),
     "chemistry": build_wire(
         ncca_subject="chemistry",
@@ -93,7 +93,7 @@ SUBJECT_WIRING_REGISTRY: dict[str, SubjectAgentWiring] = {
         baml_prefix="Chem",
         langfuse_trace_name="agent.chemistry.<verb>",
         cognee_dataset="oideachais_lc_chemistry",
-        letta_agent_id="kcg-chemistry-agent",
+        letta_agent_id="cianfhoghlaim-chemistry-agent",
     ),
     "geography": build_wire(
         ncca_subject="geography",
@@ -102,7 +102,7 @@ SUBJECT_WIRING_REGISTRY: dict[str, SubjectAgentWiring] = {
         baml_prefix="Geog",
         langfuse_trace_name="agent.geography.<verb>",
         cognee_dataset="oideachais_lc_geography",
-        letta_agent_id="kcg-geography-agent",
+        letta_agent_id="cianfhoghlaim-geography-agent",
     ),
     "history": build_wire(
         ncca_subject="history",
@@ -111,7 +111,7 @@ SUBJECT_WIRING_REGISTRY: dict[str, SubjectAgentWiring] = {
         baml_prefix="Hist",
         langfuse_trace_name="agent.history.<verb>",
         cognee_dataset="oideachais_lc_history",
-        letta_agent_id="kcg-history-agent",
+        letta_agent_id="cianfhoghlaim-history-agent",
     ),
     "english": build_wire(
         ncca_subject="english",
@@ -120,7 +120,7 @@ SUBJECT_WIRING_REGISTRY: dict[str, SubjectAgentWiring] = {
         baml_prefix="Engl",
         langfuse_trace_name="agent.english.<verb>",
         cognee_dataset="oideachais_lc_english",
-        letta_agent_id="kcg-english-agent",
+        letta_agent_id="cianfhoghlaim-english-agent",
     ),
     "gaeilge": build_wire(
         ncca_subject="gaeilge",
@@ -129,7 +129,7 @@ SUBJECT_WIRING_REGISTRY: dict[str, SubjectAgentWiring] = {
         baml_prefix="Gael",
         langfuse_trace_name="agent.gaeilge.<verb>",
         cognee_dataset="oideachais_lc_gaeilge",
-        letta_agent_id="kcg-gaeilge-agent",
+        letta_agent_id="cianfhoghlaim-gaeilge-agent",
     ),
     "computer_science": build_wire(
         ncca_subject="computer_science",
@@ -138,7 +138,7 @@ SUBJECT_WIRING_REGISTRY: dict[str, SubjectAgentWiring] = {
         baml_prefix="Comp",
         langfuse_trace_name="agent.computer_science.<verb>",
         cognee_dataset="oideachais_lc_computer_science",
-        letta_agent_id="kcg-computer-science-agent",
+        letta_agent_id="cianfhoghlaim-computer-science-agent",
     ),
 }
 
@@ -154,7 +154,7 @@ EDUCATIONAL_WIRING_REGISTRY: dict[str, SubjectAgentWiring] = {
         baml_prefix="AcadHist",
         langfuse_trace_name="agent.academic_history.<verb>",
         cognee_dataset="oideachais_academic_history",
-        letta_agent_id="kcg-academic-history-agent",
+        letta_agent_id="cianfhoghlaim-academic-history-agent",
     ),
     "celtic_grammar": build_wire(
         ncca_subject="celtic_grammar",
@@ -163,7 +163,7 @@ EDUCATIONAL_WIRING_REGISTRY: dict[str, SubjectAgentWiring] = {
         baml_prefix="CeltGram",
         langfuse_trace_name="agent.celtic_grammar.<verb>",
         cognee_dataset="oideachais_celtic_grammar",
-        letta_agent_id="kcg-celtic-grammar-agent",
+        letta_agent_id="cianfhoghlaim-celtic-grammar-agent",
     ),
     "celtic_morphology": build_wire(
         ncca_subject="celtic_morphology",
@@ -172,7 +172,7 @@ EDUCATIONAL_WIRING_REGISTRY: dict[str, SubjectAgentWiring] = {
         baml_prefix="CeltMorph",
         langfuse_trace_name="agent.celtic_morphology.<verb>",
         cognee_dataset="oideachais_celtic_morphology",
-        letta_agent_id="kcg-celtic-morphology-agent",
+        letta_agent_id="cianfhoghlaim-celtic-morphology-agent",
     ),
 }
 
@@ -188,7 +188,7 @@ HACKATHON_WIRING_REGISTRY: dict[str, SubjectAgentWiring] = {
         baml_prefix="MarkGrade",
         langfuse_trace_name="agent.marking_grader.<verb>",
         cognee_dataset="oideachais_marking_grader",
-        letta_agent_id="kcg-marking-grader-agent",
+        letta_agent_id="cianfhoghlaim-marking-grader-agent",
     ),
     "adaptive_tutor": build_wire(
         ncca_subject="adaptive_tutor",
@@ -197,7 +197,7 @@ HACKATHON_WIRING_REGISTRY: dict[str, SubjectAgentWiring] = {
         baml_prefix="AdaptTutor",
         langfuse_trace_name="agent.adaptive_tutor.<verb>",
         cognee_dataset="oideachais_adaptive_tutor",
-        letta_agent_id="kcg-adaptive-tutor-agent",
+        letta_agent_id="cianfhoghlaim-adaptive-tutor-agent",
     ),
     "equivalency_generator": build_wire(
         ncca_subject="equivalency_generator",
@@ -206,7 +206,7 @@ HACKATHON_WIRING_REGISTRY: dict[str, SubjectAgentWiring] = {
         baml_prefix="EquivGen",
         langfuse_trace_name="agent.equivalency_generator.<verb>",
         cognee_dataset="oideachais_equivalency_generator",
-        letta_agent_id="kcg-equivalency-generator-agent",
+        letta_agent_id="cianfhoghlaim-equivalency-generator-agent",
     ),
     "curriculum_change_sensor": build_wire(
         ncca_subject="curriculum_change_sensor",
@@ -215,7 +215,7 @@ HACKATHON_WIRING_REGISTRY: dict[str, SubjectAgentWiring] = {
         baml_prefix="CurrChgSens",
         langfuse_trace_name="agent.curriculum_change_sensor.<verb>",
         cognee_dataset="oideachais_curriculum_change_sensor",
-        letta_agent_id="kcg-curriculum-change-sensor-agent",
+        letta_agent_id="cianfhoghlaim-curriculum-change-sensor-agent",
     ),
 }
 

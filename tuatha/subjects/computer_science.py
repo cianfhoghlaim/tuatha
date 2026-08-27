@@ -25,7 +25,7 @@ _wire = build_wire(
     baml_prefix="Comp",
     langfuse_trace_name="agent.computer_science.<verb>",
     cognee_dataset="oideachais_lc_computer_science",
-    letta_agent_id="kcg-computer-science-agent",
+    letta_agent_id="cianfhoghlaim-computer-science-agent",
 )
 
 config = TuathaConfig.from_env()

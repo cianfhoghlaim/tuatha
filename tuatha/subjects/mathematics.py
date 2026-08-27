@@ -38,7 +38,7 @@ _wire = build_wire(
     baml_prefix="Math",
     langfuse_trace_name="agent.mathematics.<verb>",
     cognee_dataset="oideachais_lc_mathematics",
-    letta_agent_id="kcg-mathematics-agent",
+    letta_agent_id="cianfhoghlaim-mathematics-agent",
 )
 
 # Build the canonical config from env (Plan A keyless Firecrawl +

@@ -25,7 +25,7 @@ _wire = build_wire(
     baml_prefix="Geog",
     langfuse_trace_name="agent.geography.<verb>",
     cognee_dataset="oideachais_lc_geography",
-    letta_agent_id="kcg-geography-agent",
+    letta_agent_id="cianfhoghlaim-geography-agent",
 )
 
 config = TuathaConfig.from_env()
