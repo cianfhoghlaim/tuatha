@@ -1,3 +1,5 @@
+# ARCHIVED 2026-08-24 — DO NOT IMPORT — historical scattered state from Phase 1.2 of the tuatha consolidation
+
 # Tuath Development Guide
 
 Complete development environment setup for the Celtic Educational MMO backend
@@ -25,7 +27,7 @@ sub-packages — see [`README.md`](README.md) for the full structure).
 ### 1. Clone and Install
 
 ```bash
-cd /Users/cianmacandeisigh/dev/kings_college_galway
+cd ~/dev/cianfhoghlaim
 uv sync                  # resolves all 8 workspace members (incl. codeolas, crypteolas, crypteolas-demo)
 ```
 

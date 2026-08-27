@@ -1,3 +1,5 @@
+# ARCHIVED 2026-08-24 — DO NOT IMPORT — historical scattered state from Phase 1.2 of the tuatha consolidation
+
 # Tuatha — The British Isles Formative Assessment MMO
 
 *A British Isles educational MMO that delivers continuous formative feedback
@@ -121,7 +123,7 @@ The **3-way interaction** that ties them together:
 
 ```bash
 # 0. One-time: install toolchain + hydrate Infisical vault
-cd /Users/cianmacandeisigh/dev/kings_college_galway
+cd ~/dev/cianfhoghlaim
 bun run setup
 
 # 1. Sync the tuath workspace member (resolves all 4 sub-packages)
@@ -594,7 +596,7 @@ proposal with the full refactor spec and task list.
 
 ```bash
 # 1. Foundation secrets + toolchain (from repo root)
-cd /Users/cianmacandeisigh/dev/kings_college_galway
+cd ~/dev/cianfhoghlaim
 bun run setup                  # mise + bun + uv + infisical bootstrap
 
 # 2. Sync the tuath workspace member (resolves all 4 sub-packages)
@@ -842,7 +844,7 @@ See [`LICENSE.md`](../../LICENSE.md).
 
 ```bash
 # 1. Build the docker images + the Rust crate
-cd /Users/cianmacandeisigh/dev/kings_college_galway
+cd ~/dev/cianfhoghlaim
 mise run turbo build --filter=tuatha
 cd sruth/tuatha/crates/game_server
 cargo build --release

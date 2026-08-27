@@ -27,6 +27,7 @@ verify that with real dependencies the wiring is live.
 
 Reference: openspec/changes/2026-07-10-wire-8-subject-agents-cognify-langfuse-v1.
 """
+# ARCHIVED 2026-08-24 — DO NOT IMPORT — historical scattered state from Phase 1.2 of the tuatha consolidation
 from __future__ import annotations
 
 import logging
@@ -690,7 +691,7 @@ def register_ncca_subjects_in_agent_registry() -> None:
                 baml_prefix=wiring.baml_prefix,
                 langfuse_trace_name=wiring.langfuse_trace_name,
                 cognee_dataset=wiring.cognee_dataset,
-                letta_agent_id=f"kcg-{wiring.module_slug}-agent",
+                letta_agent_id=f"cianfhoghlaim-{wiring.module_slug}-agent",
                 litellm_routing_key=wiring.module_slug,
             )
             logger.debug(
