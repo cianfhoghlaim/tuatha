@@ -13,11 +13,7 @@ from google.adk.tools import FunctionTool
 from ..config import TuathaConfig
 from ..observability import trace_agent
 from ..routing import build_wire
-from ..tools.applied_mathematics_formative_item_generate import generate_appm_item
-from ..tools.applied_mathematics_marking_scheme_lookup import lookup_appm_marking_scheme
-from ..tools.applied_mathematics_past_paper_lookup import lookup_appm_paper
-from ..tools.applied_mathematics_response_score import score_appm_response
-from ..tools.applied_mathematics_syllabus_lookup import lookup_appm_lo
+from ..tools.corpus_tools import bind_subject_tools
 
 _wire = build_wire(
     ncca_subject="applied_mathematics",
@@ -31,11 +27,13 @@ _wire = build_wire(
 
 config = TuathaConfig.from_env()
 
-appm_syllabus_lookup_tool = FunctionTool(func=lookup_appm_lo)
-appm_past_paper_lookup_tool = FunctionTool(func=lookup_appm_paper)
-appm_marking_scheme_lookup_tool = FunctionTool(func=lookup_appm_marking_scheme)
-appm_formative_item_generate_tool = FunctionTool(func=generate_appm_item)
-appm_response_score_tool = FunctionTool(func=score_appm_response)
+# The 5 per-subject tools, bound via bind_subject_tools.
+_bound_tools = bind_subject_tools("applied_mathematics")
+appm_syllabus_lookup_tool = FunctionTool(func=_bound_tools[0])
+appm_past_paper_lookup_tool = FunctionTool(func=_bound_tools[1])
+appm_marking_scheme_lookup_tool = FunctionTool(func=_bound_tools[2])
+appm_formative_item_generate_tool = FunctionTool(func=_bound_tools[3])
+appm_response_score_tool = FunctionTool(func=_bound_tools[4])
 
 
 # Per-tool extraction wrappers emit the canonical
@@ -43,34 +41,14 @@ appm_response_score_tool = FunctionTool(func=score_appm_response)
 # delegate to the underlying tool function unchanged via
 # *args/**kwargs so they never break the existing function
 # signatures. The decorator is the only addition.
-@trace_agent("applied_mathematics")
-async def _appm_extract_syllabus(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_appm_lo(*args, **kwargs)
 
 
-@trace_agent("applied_mathematics")
-async def _appm_extract_past_paper(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_appm_paper(*args, **kwargs)
 
-
-@trace_agent("applied_mathematics")
-async def _appm_extract_marking_scheme(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_appm_marking_scheme(*args, **kwargs)
-
-
-@trace_agent("applied_mathematics")
-async def _appm_extract_formative_item(*args: Any, **kwargs: Any) -> Any:
-    return await generate_appm_item(*args, **kwargs)
-
-
-@trace_agent("applied_mathematics")
-async def _appm_extract_response_score(*args: Any, **kwargs: Any) -> Any:
-    return await score_appm_response(*args, **kwargs)
 
 
 appm_agent = LlmAgent(
     name="appm_agent",
-    model=config.litellm.resolve_model("ocr_vision", "media_descriptor"),
+    model=config.litellm.resolve_model("text_llm", "subject_agent"),
     description=(
         "Applied Mathematics specialist agent for the NCCA "
         "Leaving Certificate and Junior Cycle curriculum. "
@@ -83,7 +61,29 @@ appm_agent = LlmAgent(
         "Leaving Certificate + Junior Cycle Applied Mathematics "
         "syllabus. Route keyword-level traffic to your 5 "
         "per-subject tools and emit typed BAML responses per the "
-        "`qpack_applied_mathematics.baml` contract."
+        "`qpack_applied_mathematics.baml` contract.\n\n"
+        "THE 5 TOOLS — WHEN TO USE EACH:\n"
+        "- syllabus_lookup: 'what does the syllabus say about X' → "
+        "typed SyllabusChunk rows with provenance (source_pdf + "
+        "source_page + verbatim_text)\n"
+        "- past_paper_lookup: 'show me past paper questions on X' → "
+        "typed ExamPaperChunk rows\n"
+        "- marking_scheme_lookup: 'how is X graded' → typed "
+        "MarkingCriterion rows\n"
+        "- formative_item_generate: 'give me a practice question on "
+        "X' → grounding evidence\n"
+        "- response_score: 'grade my answer' → marking-scheme evidence\n\n"
+        "EVIDENCE LADDER (G7 CONTRACT): no response without "
+        "provenance (source_pdf + source_page + verbatim_text). "
+        "If a tool returns zero rows, say 'No coverage for applied "
+        "mathematics on that query' — never invent content.\n\n"
+        "NCCA LO NUMBERING: LC-APPM-LO-<strand>.<index> / "
+        "JC-APPM-LO-<strand>.<index>. When a query references a "
+        "topic but not an LO code, first call syllabus_lookup to "
+        "identify the relevant LO code.\n\n"
+        "DIFFICULTY CALIBRATION: 1 = recall; 2 = 1-step; 3 = 2-3 "
+        "step; 4 = multi-step synthesis; 5 = evaluation/proof.\n\n"
+        "LANGUAGE: English only."
     ),
     tools=[
         appm_syllabus_lookup_tool,

@@ -26,7 +26,7 @@ config = TuathaConfig.from_env()
 
 equivalency_generator_agent = LlmAgent(
     name="equivalency_generator_agent",
-    model=config.litellm.resolve_model("text_llm", "default"),
+    model=config.litellm.resolve_model("text_llm", "hackathon_agent"),
     description=(
         "Cross-Jurisdiction Equivalency Generator. Compare "
         "LC ↔ A-Level ↔ GCSE topics side-by-side. Uses the BAML "
@@ -35,8 +35,8 @@ equivalency_generator_agent = LlmAgent(
     instruction=(
         "You are the Equivalency Generator. The user picks a "
         "jurisdiction + a subject + a level → you generate the "
-        "equivalency table across the 6 jurisdictions "
-        "(NCCA + AQA + SQA + WJEC + CCEA + DESC)."
+        "equivalency table across the 6 canonical jurisdictions "
+        "{NCCA, AQA, SQA, WJEC, CCEA, IoM}. LANGUAGE: English only."
     ),
     output_key="equivalency_generator_response",
 )

@@ -26,11 +26,13 @@ config = TuathaConfig.from_env()
 
 marking_grader_agent = LlmAgent(
     name="marking_grader_agent",
-    model=config.litellm.resolve_model("text_llm", "default"),
+    model=config.litellm.resolve_model("text_llm", "hackathon_agent"),
     description=(
         "Adaptive Marking Grader. Student uploads answer + "
-        "marking scheme → instant grade + feedback. Uses the "
-        "OCR Router + BAML ScoreMarkingScheme + BAML GenerateFeedback."
+        "marking scheme → instant grade + feedback. Supports the "
+        "6 canonical jurisdictions {NCCA, AQA, SQA, WJEC, CCEA, IoM}. "
+        "Uses the OCR Router + BAML ScoreMarkingScheme + BAML "
+        "GenerateFeedback."
     ),
     instruction=(
         "You are the Adaptive Marking Grader. The student "
@@ -38,7 +40,9 @@ marking_grader_agent = LlmAgent(
         "(2) the marking scheme PDF. Extract via the OCR Router, "
         "match against the marking scheme, write personalised "
         "feedback, and persist the grade to the Cognee memory "
-        "bank."
+        "bank.\n\n"
+        "THE 6 CANONICAL JURISDICTIONS: {NCCA, AQA, SQA, WJEC, CCEA, IoM}.\n\n"
+        "LANGUAGE: English only."
     ),
     output_key="marking_grader_response",
 )

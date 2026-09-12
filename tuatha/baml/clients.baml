@@ -57,6 +57,88 @@ client<llm> gpt_4o_mini {
 
 client<llm> primary { provider "anthropic-generic" options { base_url "https://litellm.cianfhoghlaim.ie/v1" api_key "LITELLM_API_KEY" model "claude-haiku-4-5-20251001" max_input_tokens 200000 max_output_tokens 8192 } }
 
-// The 4 model clients + the abstract "primary" alt are all that's needed
-// for the current Phase 2 surface. Phase 4 (visual lore) will add the
-// cocoindex/console gem as a separate client.
+// NEW 2026-08-27 — 2 ANAM capture clients (hades_boon + xmen_scene).
+// Routes through MODEL_REGISTRY via the env-var override.
+client<llm> hades_boon {
+  provider "openai-generic"
+  options {
+    base_url "https://litellm.cianfhoghlaim.ie/v1"
+    api_key  "LITELLM_API_KEY"
+    model   "qwen3-vl-8b-hades-boon"
+    max_input_tokens 32768
+    max_output_tokens 4096
+  }
+}
+
+client<llm> xmen_scene {
+  provider "openai-generic"
+  options {
+    base_url "https://litellm.cianfhoghlaim.ie/v1"
+    api_key  "LITELLM_API_KEY"
+    model   "qwen3-vl-8b-xmen-scene"
+    max_input_tokens 32768
+    max_output_tokens 4096
+  }
+}
+
+// NEW 2026-08-27 — Hackathon agent client (marking_grader +
+// adaptive_tutor + equivalency_generator + curriculum_change_sensor).
+// All 4 BIEP hackathon features route through one canonical
+// hackathon_agent role.
+client<llm> hackathon_agent {
+  provider "openai-generic"
+  options {
+    base_url "https://litellm.cianfhoghlaim.ie/v1"
+    api_key  "LITELLM_API_KEY"
+    model   "minimax-m3"
+    max_input_tokens 32768
+    max_output_tokens 4096
+  }
+}
+
+// NEW 2026-08-27 — Subject agent client (the 8 NCCA subject
+// agents: math + appm + chem + geog + hist + engl + gael + comp).
+// All 8 route through one canonical subject_agent role.
+client<llm> subject_agent {
+  provider "openai-generic"
+  options {
+    base_url "https://litellm.cianfhoghlaim.ie/v1"
+    api_key  "LITELLM_API_KEY"
+    model   "minimax-m3"
+    max_input_tokens 32768
+    max_output_tokens 4096
+  }
+}
+
+// NEW 2026-08-27 — Educational agent client (academic_history
+// + celtic_grammar + celtic_morphology). Routes through the
+// educational_agent role.
+client<llm> educational_agent {
+  provider "openai-generic"
+  options {
+    base_url "https://litellm.cianfhoghlaim.ie/v1"
+    api_key  "LITELLM_API_KEY"
+    model   "minimax-m3"
+    max_input_tokens 32768
+    max_output_tokens 4096
+  }
+}
+
+// NEW 2026-08-27 — Media descriptor client (the 10-tool
+// media_descriptor_agent). Routes through the media_descriptor
+// role (the only one that stays in ocr_vision family — it
+// actually needs a vision model).
+client<llm> media_descriptor {
+  provider "openai-generic"
+  options {
+    base_url "https://litellm.cianfhoghlaim.ie/v1"
+    api_key  "LITELLM_API_KEY"
+    model   "molmo2-8b"
+    max_input_tokens 32768
+    max_output_tokens 4096
+  }
+}
+
+// The 4 model clients + the abstract "primary" alt + 4 NEW
+// ANAM / agent clients are all that's needed for the current
+// Phase 3 surface.

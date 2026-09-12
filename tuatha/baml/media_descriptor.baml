@@ -145,3 +145,68 @@ function ExtractOfficialDocumentDescriptor(
     narrative_beat, transferability, shippable=false.
   "#
 }
+
+// Class F (animation, X-Men: Evolution) — added 2026-08-27.
+// Extracts a 7-axis MediaDescriptor for an X-Men: Evolution
+// scene frame, with the additional character + team + ability
+// + power_class metadata fields.
+
+class XmenDescriptor {
+  work              string
+  medium            string
+  language          string
+  source_url        string
+  source_page       int
+  provenance_sha256 string
+  provenance_page   int
+  rung3_excerpt     string
+  power_event       string
+  visual_grammar    string
+  palette           string
+  vfx_vocabulary    string
+  narrative_beat    string
+  transferability   string
+  character         string   // one of the full X-Men: Evolution roster
+  character_team    string   // XMen | Brotherhood | XFactor | Independents | Humans
+  ability_name      string
+  power_class       string   // Alpha | Beta | Omega | Unknown
+  episode           string   // e.g. 'S01E05'
+  timestamp         string   // mm:ss
+  shippable         bool     // always false per Evidence Ladder invariant
+}
+
+function ExtractXmenDescriptor(
+  image_b64: string,
+  source_url: string,
+  source_frame: int,
+  episode: string,
+  timestamp: string,
+  rung1_sha256: string,
+  rung2_excerpt: string,
+) -> XmenDescriptor {
+  client molmo2_8b
+  prompt #"
+    You are the canonical BAML extractor for X-Men: Evolution
+    (2000-2003, Marvel Animation) scene frames (Class F).
+
+    The full X-Men: Evolution character roster (30+ characters
+    across X-Men + Brotherhood + XFactor + Independents) is
+    embedded in the ExtractXmenScene prompt in
+    tuatha/baml/anam_xmen.baml::XMEN_ROSTER.
+
+    Given the frame image (base64) from source URL {{ source_url }}
+    frame {{ source_frame }} (episode {{ episode }} @ {{ timestamp }})
+    with rung-1 sha256 {{ rung1_sha256 }} and rung-2 excerpt:
+    {{ rung2_excerpt }}
+
+    return an XmenDescriptor with character, character_team,
+    ability_name, power_class, plus the 7-axis MediaDescriptor
+    fields (power_event, visual_grammar, palette, vfx_vocabulary,
+    narrative_beat, transferability) and shippable=false.
+
+    LANGUAGE: English only.
+
+    Cite visual evidence only — NEVER invent powers or abilities
+    not visually demonstrated in the frame.
+  "#
+}

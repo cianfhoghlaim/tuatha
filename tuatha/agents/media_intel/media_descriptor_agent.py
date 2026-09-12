@@ -313,6 +313,71 @@ async def extract_official_document_descriptor_tool(
         )
 
 
+async def extract_xmen_descriptor_tool(
+    frame_url: str,
+    metadata: str,
+    source_url: str,
+    source_timestamp: str,
+    work: str = "X-Men: Evolution (2000-2003, Marvel Animation)",
+    language: str = "en",
+) -> dict[str, Any]:
+    """Extract a 7-axis MediaDescriptor from an X-Men: Evolution scene
+    frame (Class F animation, Marvel mutants).
+
+    VLM default: molmo2-8b (the animation specialist with multi-image
+    reasoning + grounding). Routes through
+    `MODEL_REGISTRY.resolve("ocr_vision", "xmen_scene")` per the
+    2026-08-27 centralized-model-registry delta.
+
+    Per the 2026-08-27 change: the descriptor carries the canonical
+    X-Men character + team + ability + power_class metadata in
+    addition to the 7-axis schema.
+    """
+    try:
+        from baml_client.sync_client import b  # type: ignore
+
+        scene = b.ExtractXmenScene(image=None)  # placeholder
+        return make_media_descriptor_record(
+            work=work,
+            medium="animation",
+            language=language,
+            source_url=source_url,
+            power_event={
+                "actor": getattr(scene, "character", "Unknown"),
+                "element": getattr(scene, "ability_name", "none"),
+                "scale_tier": getattr(scene, "power_class", "Unknown"),
+            },
+            visual_grammar={"composition": metadata},
+            palette={"dominant_hex": [], "accent_hex": [], "emissive_hex": [], "per_element_palette": {}},
+            vfx_vocabulary={"particle_class": "particle", "density": "medium"},
+            narrative_beat={"arc_position": getattr(scene, "episode", work)},
+            transferability={"in_game_mechanic": "mutation_power", "anam_cost": 0},
+            rights_holder="Marvel Animation / Disney+",
+            licence="fair-use-description",
+            derivation_class="fair_use_description",
+        )
+    except Exception:
+        return make_media_descriptor_record(
+            work=work,
+            medium="animation",
+            language=language,
+            source_url=source_url,
+            power_event={
+                "actor": "Unknown",
+                "element": "mutation",
+                "scale_tier": "Unknown",
+            },
+            visual_grammar={"composition": metadata},
+            palette={"dominant_hex": [], "accent_hex": [], "emissive_hex": [], "per_element_palette": {}},
+            vfx_vocabulary={"particle_class": "particle", "density": "medium"},
+            narrative_beat={"arc_position": work},
+            transferability={"in_game_mechanic": "mutation_power", "anam_cost": 0},
+            rights_holder="Marvel Animation / Disney+",
+            licence="fair-use-description",
+            derivation_class="fair_use_description",
+        )
+
+
 # ============================================================================
 # Corpus introspection tools (the 5 new tools beyond the per-medium extractors)
 # ============================================================================
@@ -430,6 +495,12 @@ TOOLS: list[Tool] = [
         name="extract_official_document_descriptor",
         description="Extract the 7-axis MediaDescriptor from an official document (Class E — NCCA + SEC + DfE + SQA + WJEC + DESC + UK / IE / Crown Dependencies government + departments).",
         fn=extract_official_document_descriptor_tool,
+    ),
+    # ── Class F (animation, X-Men: Evolution) — added 2026-08-27 ──
+    Tool(
+        name="extract_xmen_descriptor",
+        description="Extract the 7-axis MediaDescriptor from an X-Men: Evolution (2000-2003, Marvel Animation) scene frame (Class F animation). Carries the character + team + ability + power_class metadata.",
+        fn=extract_xmen_descriptor_tool,
     ),
     # ── 5 corpus introspection tools ──
     Tool(

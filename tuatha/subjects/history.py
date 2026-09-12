@@ -12,11 +12,7 @@ from google.adk.tools import FunctionTool
 from ..config import TuathaConfig
 from ..observability import trace_agent
 from ..routing import build_wire
-from ..tools.history_formative_item_generate import generate_hist_item
-from ..tools.history_marking_scheme_lookup import lookup_hist_marking_scheme
-from ..tools.history_past_paper_lookup import lookup_hist_paper
-from ..tools.history_response_score import score_hist_response
-from ..tools.history_syllabus_lookup import lookup_hist_lo
+from ..tools.corpus_tools import bind_subject_tools
 
 _wire = build_wire(
     ncca_subject="history",
@@ -30,11 +26,13 @@ _wire = build_wire(
 
 config = TuathaConfig.from_env()
 
-hist_syllabus_lookup_tool = FunctionTool(func=lookup_hist_lo)
-hist_past_paper_lookup_tool = FunctionTool(func=lookup_hist_paper)
-hist_marking_scheme_lookup_tool = FunctionTool(func=lookup_hist_marking_scheme)
-hist_formative_item_generate_tool = FunctionTool(func=generate_hist_item)
-hist_response_score_tool = FunctionTool(func=score_hist_response)
+# The 5 per-subject tools, bound via bind_subject_tools.
+_bound_tools = bind_subject_tools("history")
+hist_syllabus_lookup_tool = FunctionTool(func=_bound_tools[0])
+hist_past_paper_lookup_tool = FunctionTool(func=_bound_tools[1])
+hist_marking_scheme_lookup_tool = FunctionTool(func=_bound_tools[2])
+hist_formative_item_generate_tool = FunctionTool(func=_bound_tools[3])
+hist_response_score_tool = FunctionTool(func=_bound_tools[4])
 
 
 # Per-tool extraction wrappers emit the canonical
@@ -42,34 +40,14 @@ hist_response_score_tool = FunctionTool(func=score_hist_response)
 # delegate to the underlying tool function unchanged via
 # *args/**kwargs so they never break the existing function
 # signatures. The decorator is the only addition.
-@trace_agent("history")
-async def _hist_extract_syllabus(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_hist_lo(*args, **kwargs)
 
 
-@trace_agent("history")
-async def _hist_extract_past_paper(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_hist_paper(*args, **kwargs)
 
-
-@trace_agent("history")
-async def _hist_extract_marking_scheme(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_hist_marking_scheme(*args, **kwargs)
-
-
-@trace_agent("history")
-async def _hist_extract_formative_item(*args: Any, **kwargs: Any) -> Any:
-    return await generate_hist_item(*args, **kwargs)
-
-
-@trace_agent("history")
-async def _hist_extract_response_score(*args: Any, **kwargs: Any) -> Any:
-    return await score_hist_response(*args, **kwargs)
 
 
 hist_agent = LlmAgent(
     name="hist_agent",
-    model=config.litellm.resolve_model("ocr_vision", "media_descriptor"),
+    model=config.litellm.resolve_model("text_llm", "subject_agent"),
     description=(
         "History specialist agent for the NCCA Leaving "
         "Certificate and Junior Cycle curriculum. Early modern, "
@@ -79,7 +57,22 @@ hist_agent = LlmAgent(
         "You are the History specialist agent for the new "
         "tuatha/ project. Route keyword-level traffic to your 5 "
         "per-subject tools and emit typed BAML responses per the "
-        "`qpack_history.baml` contract."
+        "`qpack_history.baml` contract.\n\n"
+        "THE 5 TOOLS — WHEN TO USE EACH:\n"
+        "- syllabus_lookup: typed SyllabusChunk rows with provenance\n"
+        "- past_paper_lookup: typed ExamPaperChunk rows\n"
+        "- marking_scheme_lookup: typed MarkingCriterion rows\n"
+        "- formative_item_generate: grounding evidence\n"
+        "- response_score: marking-scheme evidence\n\n"
+        "EVIDENCE LADDER (G7): no response without provenance "
+        "(source_pdf + source_page + verbatim_text). If a tool "
+        "returns zero rows, say 'No coverage for history on that "
+        "query' — never invent content.\n\n"
+        "NCCA LO NUMBERING: LC-HIST-LO-<strand>.<index> / "
+        "JC-HIST-LO-<strand>.<index>.\n\n"
+        "DIFFICULTY CALIBRATION: 1 = recall; 2 = 1-step; 3 = 2-3 "
+        "step; 4 = multi-step synthesis; 5 = evaluation/proof.\n\n"
+        "LANGUAGE: English only."
     ),
     tools=[
         hist_syllabus_lookup_tool,

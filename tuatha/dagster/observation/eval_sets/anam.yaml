@@ -1,0 +1,69 @@
+# Eval cases for the AnamColorAnchorTrajectoryEvaluator.
+# One case per ANAM source (hades_boons, xmen_powers, avatar_elemental_bending).
+# Per the 2026-08-27 change, the 3 corpora are Hades + X-Men + Avatar.
+
+eval_set_name: anam
+agent_module: tuatha.agents.media_intel.media_descriptor_agent
+trajectory_evaluator: tuatha.dagster.observation.eval_metrics.AnamColorAnchorTrajectoryEvaluator
+threshold: 0.85
+
+cases:
+  - case_name: hades_athena_divine_strike_color_anchor
+    source: hades_boons
+    input:
+      image: "s3://cianfhoghlaim-tuatha-raw/hades/test/athena_divine_strike.jpg"
+    expected_trajectory:
+      - tool_name: ExtractHadesBoon
+        output:
+          boon_id: "hades:athena:divine_strike"
+          god: "Athena"
+          color_hex: "#4A90E2"
+      - tool_name: MapToAnamParticle
+        output:
+          anam_id: "hades:athena:divine_strike:danu"
+          celtic_deity: "Danu"
+          anam_color_hex: "#3FBAC2"
+    ground_truth:
+      max_delta_e: 8.0
+      expected_celtic_deity: "Danu"
+
+  - case_name: xmen_cyclops_optic_blast_color_anchor
+    source: xmen_powers
+    input:
+      image: "s3://cianfhoghlaim-tuatha-raw/xmen/test/S01E05_cyclops_optic_blast.jpg"
+    expected_trajectory:
+      - tool_name: ExtractXmenScene
+        output:
+          scene_id: "xmen:S01E05:15:32:cyclops:optic_blast"
+          character: "Cyclops"
+          ability_name: "optic blast"
+          power_class: "Alpha"
+          color_hex: "#FF0000"
+      - tool_name: MapToAnamParticle
+        output:
+          anam_id: "xmen:S01E05:15:32:cyclops:optic_blast:taranis"
+          celtic_deity: "Taranis"
+          anam_color_hex: "#3FBAC2"
+    ground_truth:
+      max_delta_e: 8.0
+      expected_celtic_deity: "Taranis"
+
+  - case_name: avatar_katara_waterbending_color_anchor
+    source: avatar_elemental_bending
+    input:
+      image: "s3://cianfhoghlaim-tuatha-raw/avatar/test/S01E03_katara_waterbending.jpg"
+    expected_trajectory:
+      - tool_name: ExtractAnimationDescriptor
+        output:
+          work: "Avatar: The Last Airbender"
+          power_event:
+            element: "water"
+          color_hex: "#1E5AA8"
+      - tool_name: MapToAnamParticle
+        output:
+          anam_id: "avatar:S01E03:05:18:katara:waterbending:manannan"
+          celtic_deity: "Manannán"
+          anam_color_hex: "#3FBAC2"
+    ground_truth:
+      max_delta_e: 8.0
+      expected_celtic_deity: "Manannán"

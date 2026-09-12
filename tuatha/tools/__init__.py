@@ -1,83 +1,35 @@
-"""tuatha.tools — the 40 per-subject tools (5 per subject × 8 subjects).
+"""tuatha.tools — the canonical per-subject tool surface.
 
-The canonical re-export surface. Each tool wraps a BAML
-function call + a LanceDB query + the standard result
-serialization.
+After the 2026-08-27 ANAM capture pipeline port + 3-corpus
+expansion change (T1.7), the 40 per-subject tool stub files
+were collapsed into a single `bind_subject_tools(<subject>)`
+helper from `corpus_tools.py`. This module re-exports that
+helper + the special `gaeilge_gramadach_review` tool
+(gaeilge subject's 6th tool — the grammardóir reviewer).
+
+Per the centralized-registry contract: no hardcoded model
+strings anywhere; per-resolution via MODEL_REGISTRY.
 """
 from __future__ import annotations
 
-# The 40 tools are lazily imported (per the BAML/Letta
-# graceful-degradation pattern).
+# The single canonical helper — `bind_subject_tools(<subject>)`
+# returns the 5 async callables (syllabus / past_paper /
+# marking_scheme / formative_item / response_score).
+from .corpus_tools import bind_subject_tools  # type: ignore
+
+# The gaeilge grammardóir reviewer — the 6th tool for the
+# gaeilge subject. Lifted to module level so the gaeilge
+# subject agent can register it as an additional tool.
 try:
-    # Mathematics (5)
-    from .applied_mathematics_formative_item_generate import generate_appm_item  # type: ignore
-    from .applied_mathematics_marking_scheme_lookup import (
-        lookup_appm_marking_scheme,  # type: ignore
-    )
-    from .applied_mathematics_past_paper_lookup import lookup_appm_paper  # type: ignore
-    from .applied_mathematics_response_score import score_appm_response  # type: ignore
-
-    # Applied mathematics (5)
-    from .applied_mathematics_syllabus_lookup import lookup_appm_lo  # type: ignore
-    from .chemistry_formative_item_generate import generate_chem_item  # type: ignore
-    from .chemistry_marking_scheme_lookup import lookup_chem_marking_scheme  # type: ignore
-    from .chemistry_past_paper_lookup import lookup_chem_paper  # type: ignore
-    from .chemistry_response_score import score_chem_response  # type: ignore
-
-    # Chemistry (5)
-    from .chemistry_syllabus_lookup import lookup_chem_lo  # type: ignore
-    from .computer_science_formative_item_generate import generate_comp_item  # type: ignore
-    from .computer_science_marking_scheme_lookup import lookup_comp_marking_scheme  # type: ignore
-    from .computer_science_past_paper_lookup import lookup_comp_paper  # type: ignore
-    from .computer_science_response_score import score_comp_response  # type: ignore
-
-    # Computer science (5)
-    from .computer_science_syllabus_lookup import lookup_comp_lo  # type: ignore
-    from .english_formative_item_generate import generate_engl_item  # type: ignore
-    from .english_marking_scheme_lookup import lookup_engl_marking_scheme  # type: ignore
-    from .english_past_paper_lookup import lookup_engl_paper  # type: ignore
-    from .english_response_score import score_engl_response  # type: ignore
-
-    # English (5)
-    from .english_syllabus_lookup import lookup_engl_lo  # type: ignore
-    from .gaeilge_formative_item_generate import generate_gael_item  # type: ignore
     from .gaeilge_gramadach_review import review_gael_gramadach  # type: ignore
-    from .gaeilge_marking_scheme_lookup import lookup_gael_marking_scheme  # type: ignore
-    from .gaeilge_past_paper_lookup import lookup_gael_paper  # type: ignore
-    from .gaeilge_response_score import score_gael_response  # type: ignore
 
-    # Gaeilge (5 + the special `gael_gramadach_review` per the BUILD_PLAN.md)
-    from .gaeilge_syllabus_lookup import lookup_gael_lo  # type: ignore
-    from .geography_formative_item_generate import generate_geog_item  # type: ignore
-    from .geography_marking_scheme_lookup import lookup_geog_marking_scheme  # type: ignore
-    from .geography_past_paper_lookup import lookup_geog_paper  # type: ignore
-    from .geography_response_score import score_geog_response  # type: ignore
-
-    # Geography (5)
-    from .geography_syllabus_lookup import lookup_geog_lo  # type: ignore
-    from .history_formative_item_generate import generate_hist_item  # type: ignore
-    from .history_marking_scheme_lookup import lookup_hist_marking_scheme  # type: ignore
-    from .history_past_paper_lookup import lookup_hist_paper  # type: ignore
-    from .history_response_score import score_hist_response  # type: ignore
-
-    # History (5)
-    from .history_syllabus_lookup import lookup_hist_lo  # type: ignore
-    from .mathematics_formative_item_generate import generate_math_item  # type: ignore
-    from .mathematics_marking_scheme_lookup import lookup_math_marking_scheme  # type: ignore
-    from .mathematics_past_paper_lookup import lookup_math_paper  # type: ignore
-    from .mathematics_response_score import score_math_response  # type: ignore
-    from .mathematics_syllabus_lookup import lookup_math_lo  # type: ignore
-
-    TOOLS = {
-        "mathematics_syllabus_lookup": lookup_math_lo,
-        "mathematics_past_paper_lookup": lookup_math_paper,
-        "mathematics_marking_scheme_lookup": lookup_math_marking_scheme,
-        "mathematics_formative_item_generate": generate_math_item,
-        "mathematics_response_score": score_math_response,
-        # ... + 35 more
-    }
+    _GRAMADACH_AVAILABLE = True
 except ImportError:
-    TOOLS = {}
+    review_gael_gramadach = None  # type: ignore
+    _GRAMADACH_AVAILABLE = False
 
 
-__all__ = ["TOOLS"] + [k for k in __import__("sys").modules]  # dynamic
+__all__ = [
+    "bind_subject_tools",
+    "review_gael_gramadach",
+]

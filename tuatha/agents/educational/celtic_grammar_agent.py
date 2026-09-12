@@ -26,7 +26,7 @@ config = TuathaConfig.from_env()
 
 celtic_grammar_agent = LlmAgent(
     name="celtic_grammar_agent",
-    model=config.litellm.resolve_model("text_llm", "default"),
+    model=config.litellm.resolve_model("text_llm", "educational_agent"),
     description=(
         "Celtic grammar specialist agent for the 6 Celtic "
         "languages (Irish + Welsh + Scottish Gaelic + Breton + "
@@ -37,7 +37,8 @@ celtic_grammar_agent = LlmAgent(
         "You are the Celtic grammar specialist agent. You handle "
         "queries about the grammar of the 6 Celtic languages. "
         "Route keyword-level traffic and emit typed BAML responses "
-        "per the `qpack_celtic_grammar.baml` contract."
+        "per the `qpack_celtic_grammar.baml` contract.\n\n"
+        "LANGUAGE: English by default; Irish (Gaeilge) for Irish queries."
     ),
     output_key="celtic_grammar_response",
 )

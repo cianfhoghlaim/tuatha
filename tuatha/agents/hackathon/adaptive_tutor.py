@@ -24,17 +24,19 @@ config = TuathaConfig.from_env()
 
 adaptive_tutor_agent = LlmAgent(
     name="adaptive_tutor_agent",
-    model=config.litellm.resolve_model("text_llm", "default"),
+    model=config.litellm.resolve_model("text_llm", "hackathon_agent"),
     description=(
         "Adaptive Tutor Chat. Stateful 6-jurisdiction syllabus "
         "tutor with persistent memory (Cognee + Letta). Routes "
-        "to the right NCCA / AQA / SQA / WJEC / CCEA / DESC syllabus."
+        "to the right NCCA / AQA / SQA / WJEC / CCEA / IoM syllabus."
     ),
     instruction=(
         "You are the Adaptive Tutor. You chat with a student "
         "and adapt difficulty based on the concepts they struggle "
         "with. You route to the right jurisdiction's syllabus via "
-        "the 13-agent fleet + the per-subject agents."
+        "the 13-agent fleet + the per-subject agents. The 6 "
+        "canonical jurisdictions are {NCCA, AQA, SQA, WJEC, CCEA, IoM}. "
+        "LANGUAGE: English only."
     ),
     output_key="adaptive_tutor_response",
 )

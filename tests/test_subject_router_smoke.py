@@ -40,11 +40,17 @@ def test_agent_has_model(agent, name):
     assert agent.model is not None
 
 def test_media_intel_has_10_tools():
-    assert len(TOOLS) == 10
+    # Per the 2026-08-27 change: 11 tools now (10 original +
+    # extract_xmen_descriptor Class F). The test name stays "10"
+    # for backwards-compat — the canonical count is 11.
+    assert len(TOOLS) == 11
 
 def test_classify_medium():
-    assert classify_medium({"medium": "comic"}) == "comic_descriptor"
-    assert classify_medium({"medium": "prose"}) == "prose_descriptor"
-    assert classify_medium({"medium": "animation"}) == "animation_descriptor"
-    assert classify_medium({"medium": "gameplay"}) == "gameplay_descriptor"
-    assert classify_medium({"medium": "official"}) == "official_document_descriptor"
+    # Per the 2026-08-27 change: classify_medium became async
+    # when the X-Men Class F extractor was added.
+    import asyncio
+    assert asyncio.run(classify_medium({"medium": "comic"})) == "comic_descriptor"
+    assert asyncio.run(classify_medium({"medium": "prose"})) == "prose_descriptor"
+    assert asyncio.run(classify_medium({"medium": "animation"})) == "animation_descriptor"
+    assert asyncio.run(classify_medium({"medium": "gameplay"})) == "gameplay_descriptor"
+    assert asyncio.run(classify_medium({"medium": "official"})) == "official_document_descriptor"

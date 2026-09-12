@@ -12,11 +12,7 @@ from google.adk.tools import FunctionTool
 from ..config import TuathaConfig
 from ..observability import trace_agent
 from ..routing import build_wire
-from ..tools.geography_formative_item_generate import generate_geog_item
-from ..tools.geography_marking_scheme_lookup import lookup_geog_marking_scheme
-from ..tools.geography_past_paper_lookup import lookup_geog_paper
-from ..tools.geography_response_score import score_geog_response
-from ..tools.geography_syllabus_lookup import lookup_geog_lo
+from ..tools.corpus_tools import bind_subject_tools
 
 _wire = build_wire(
     ncca_subject="geography",
@@ -30,11 +26,13 @@ _wire = build_wire(
 
 config = TuathaConfig.from_env()
 
-geog_syllabus_lookup_tool = FunctionTool(func=lookup_geog_lo)
-geog_past_paper_lookup_tool = FunctionTool(func=lookup_geog_paper)
-geog_marking_scheme_lookup_tool = FunctionTool(func=lookup_geog_marking_scheme)
-geog_formative_item_generate_tool = FunctionTool(func=generate_geog_item)
-geog_response_score_tool = FunctionTool(func=score_geog_response)
+# The 5 per-subject tools, bound via bind_subject_tools.
+_bound_tools = bind_subject_tools("geography")
+geog_syllabus_lookup_tool = FunctionTool(func=_bound_tools[0])
+geog_past_paper_lookup_tool = FunctionTool(func=_bound_tools[1])
+geog_marking_scheme_lookup_tool = FunctionTool(func=_bound_tools[2])
+geog_formative_item_generate_tool = FunctionTool(func=_bound_tools[3])
+geog_response_score_tool = FunctionTool(func=_bound_tools[4])
 
 
 # Per-tool extraction wrappers emit the canonical
@@ -42,34 +40,14 @@ geog_response_score_tool = FunctionTool(func=score_geog_response)
 # delegate to the underlying tool function unchanged via
 # *args/**kwargs so they never break the existing function
 # signatures. The decorator is the only addition.
-@trace_agent("geography")
-async def _geog_extract_syllabus(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_geog_lo(*args, **kwargs)
 
 
-@trace_agent("geography")
-async def _geog_extract_past_paper(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_geog_paper(*args, **kwargs)
 
-
-@trace_agent("geography")
-async def _geog_extract_marking_scheme(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_geog_marking_scheme(*args, **kwargs)
-
-
-@trace_agent("geography")
-async def _geog_extract_formative_item(*args: Any, **kwargs: Any) -> Any:
-    return await generate_geog_item(*args, **kwargs)
-
-
-@trace_agent("geography")
-async def _geog_extract_response_score(*args: Any, **kwargs: Any) -> Any:
-    return await score_geog_response(*args, **kwargs)
 
 
 geog_agent = LlmAgent(
     name="geog_agent",
-    model=config.litellm.resolve_model("ocr_vision", "media_descriptor"),
+    model=config.litellm.resolve_model("text_llm", "subject_agent"),
     description=(
         "Geography specialist agent for the NCCA Leaving "
         "Certificate and Junior Cycle curriculum. Physical "
@@ -80,7 +58,21 @@ geog_agent = LlmAgent(
         "You are the Geography specialist agent for the new "
         "tuatha/ project. Route keyword-level traffic to your 5 "
         "per-subject tools and emit typed BAML responses per the "
-        "`qpack_geography.baml` contract."
+        "`qpack_geography.baml` contract.\n\n"
+        "THE 5 TOOLS — WHEN TO USE EACH:\n"
+        "- syllabus_lookup: typed SyllabusChunk rows with provenance\n"
+        "- past_paper_lookup: typed ExamPaperChunk rows\n"
+        "- marking_scheme_lookup: typed MarkingCriterion rows\n"
+        "- formative_item_generate: grounding evidence\n"
+        "- response_score: marking-scheme evidence\n\n"
+        "EVIDENCE LADDER (G7): no response without provenance. If "
+        "a tool returns zero rows, say 'No coverage for geography on "
+        "that query' — never invent content.\n\n"
+        "NCCA LO NUMBERING: LC-GEOG-LO-<strand>.<index> / "
+        "JC-GEOG-LO-<strand>.<index>.\n\n"
+        "DIFFICULTY CALIBRATION: 1 = recall; 2 = 1-step; 3 = 2-3 "
+        "step; 4 = multi-step synthesis; 5 = evaluation/proof.\n\n"
+        "LANGUAGE: English only."
     ),
     tools=[
         geog_syllabus_lookup_tool,

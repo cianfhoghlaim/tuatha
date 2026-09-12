@@ -1,0 +1,105 @@
+# Eval cases for the AdaptiveTutorRelevanceTrajectoryEvaluator.
+# 5 cases — one per TutorActionType (ExplainConcept, DrillProblem,
+# Summarise, ReviewPastPaper, SwitchJurisdiction).
+
+eval_set_name: tutor
+agent_module: tuatha.agents.hackathon.adaptive_tutor
+trajectory_evaluator: tuatha.dagster.observation.eval_metrics.AdaptiveTutorRelevanceTrajectoryEvaluator
+threshold: 0.8
+
+cases:
+  - case_name: tutor_math_explain_concept_low_mastery
+    jurisdiction: NCCA
+    subject: mathematics
+    mastery_score: 0.35
+    current_difficulty: 3
+    blocked_lo: ["LC-MATHS-LO-2.4"]
+    student_input: "I don't understand quadratic equations"
+    expected_trajectory:
+      - tool_name: Adapttutor
+        input:
+          tutor_state:
+            jurisdiction: NCCA
+            subject: mathematics
+            mastery_score: 0.35
+        output:
+          next_action:
+            action_type: "ExplainConcept"
+            difficulty: 2
+            payload_en: "Let's break down quadratic equations step by step..."
+          reasoning: "Mastery below 0.5 → lower difficulty + ExplainConcept"
+    ground_truth:
+      expected_action: ExplainConcept
+      difficulty_change: -1
+
+  - case_name: tutor_math_drill_problem_high_mastery
+    jurisdiction: NCCA
+    subject: mathematics
+    mastery_score: 0.85
+    current_difficulty: 3
+    student_input: "I want more challenging problems"
+    expected_trajectory:
+      - tool_name: Adapttutor
+        input:
+          tutor_state:
+            mastery_score: 0.85
+        output:
+          next_action:
+            action_type: "DrillProblem"
+            difficulty: 4
+          reasoning: "Mastery above 0.8 → raise difficulty + DrillProblem"
+    ground_truth:
+      expected_action: DrillProblem
+      difficulty_change: +1
+
+  - case_name: tutor_gaeilge_summarise_mid_mastery
+    jurisdiction: NCCA
+    subject: gaeilge
+    mastery_score: 0.55
+    current_difficulty: 3
+    student_input: "An féidir leat achoimre a dhéanamh ar an scéal?"
+    expected_trajectory:
+      - tool_name: Adapttutor
+        input:
+          tutor_state:
+            mastery_score: 0.55
+        output:
+          next_action:
+            action_type: "Summarise"
+            payload_ga: "Seo a leanas achoimre ar an scéal..."
+    ground_truth:
+      expected_action: Summarise
+
+  - case_name: tutor_history_review_past_paper
+    jurisdiction: AQA
+    subject: history
+    mastery_score: 0.65
+    student_input: "Show me past paper questions on the Cold War"
+    expected_trajectory:
+      - tool_name: Adapttutor
+        input:
+          tutor_state:
+            mastery_score: 0.65
+        output:
+          next_action:
+            action_type: "ReviewPastPaper"
+          reasoning: "Student requested past paper review"
+    ground_truth:
+      expected_action: ReviewPastPaper
+
+  - case_name: tutor_geography_switch_jurisdiction
+    jurisdiction: WJEC
+    subject: geography
+    mastery_score: 0.70
+    student_input: "How does this compare to the Scottish curriculum?"
+    expected_trajectory:
+      - tool_name: Adapttutor
+        input:
+          tutor_state:
+            jurisdiction: WJEC
+        output:
+          next_action:
+            action_type: "SwitchJurisdiction"
+            payload_en: "Switching to SQA Higher Geography..."
+    ground_truth:
+      expected_action: SwitchJurisdiction

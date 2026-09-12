@@ -6,22 +6,24 @@ The Gaeilge agent has the special bilingual EN + GA surface
 (per the bilingual_extraction invariant in BAML). The agent
 operates in both languages; the user can switch languages at
 query time.
+
+Per the 2026-08-27 change:
+- Uses `bind_subject_tools("gaeilge")` pattern (not 5 stub imports)
+- Uses `resolve_model("text_llm", "subject_agent")` (not the
+  silent-coercion `ocr_vision:media_descriptor`)
+- Has the Evidence Ladder G7 contract
+- Has the NCCA LO numbering scheme (LC-GA-LO-<snáithe>.<index>)
+- Has the difficulty calibration (DEACRÚCHÁN 1-5)
+- LANGUAGE: English by default; bilingual EN + GA when language="ga"
 """
 from __future__ import annotations
-
-from typing import Any
 
 from google.adk.agents import LlmAgent
 from google.adk.tools import FunctionTool
 
 from ..config import TuathaConfig
-from ..observability import trace_agent
 from ..routing import build_wire
-from ..tools.gaeilge_formative_item_generate import generate_gael_item
-from ..tools.gaeilge_marking_scheme_lookup import lookup_gael_marking_scheme
-from ..tools.gaeilge_past_paper_lookup import lookup_gael_paper
-from ..tools.gaeilge_response_score import score_gael_response
-from ..tools.gaeilge_syllabus_lookup import lookup_gael_lo
+from ..tools.corpus_tools import bind_subject_tools
 
 _wire = build_wire(
     ncca_subject="gaeilge",
@@ -35,46 +37,28 @@ _wire = build_wire(
 
 config = TuathaConfig.from_env()
 
-gael_syllabus_lookup_tool = FunctionTool(func=lookup_gael_lo)
-gael_past_paper_lookup_tool = FunctionTool(func=lookup_gael_paper)
-gael_marking_scheme_lookup_tool = FunctionTool(func=lookup_gael_marking_scheme)
-gael_formative_item_generate_tool = FunctionTool(func=generate_gael_item)
-gael_response_score_tool = FunctionTool(func=score_gael_response)
+# The 5 per-subject tools, bound via bind_subject_tools.
+_bound_tools = bind_subject_tools("gaeilge")
+gael_syllabus_lookup_tool = FunctionTool(func=_bound_tools[0])
+gael_past_paper_lookup_tool = FunctionTool(func=_bound_tools[1])
+gael_marking_scheme_lookup_tool = FunctionTool(func=_bound_tools[2])
+gael_formative_item_generate_tool = FunctionTool(func=_bound_tools[3])
+gael_response_score_tool = FunctionTool(func=_bound_tools[4])
 
 
-# Per-tool extraction wrappers emit the canonical
-# `agent.gaeilge.extract` Langfuse trace. The wrappers
-# delegate to the underlying tool function unchanged via
-# *args/**kwargs so they never break the existing function
-# signatures. The decorator is the only addition.
-@trace_agent("gaeilge")
-async def _gael_extract_syllabus(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_gael_lo(*args, **kwargs)
+# The 6th tool for gaeilge: the grammardóir reviewer.
+try:
+    from ..tools import review_gael_gramadach
 
-
-@trace_agent("gaeilge")
-async def _gael_extract_past_paper(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_gael_paper(*args, **kwargs)
-
-
-@trace_agent("gaeilge")
-async def _gael_extract_marking_scheme(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_gael_marking_scheme(*args, **kwargs)
-
-
-@trace_agent("gaeilge")
-async def _gael_extract_formative_item(*args: Any, **kwargs: Any) -> Any:
-    return await generate_gael_item(*args, **kwargs)
-
-
-@trace_agent("gaeilge")
-async def _gael_extract_response_score(*args: Any, **kwargs: Any) -> Any:
-    return await score_gael_response(*args, **kwargs)
+    _GRAMADACH_AVAILABLE = True
+except ImportError:
+    review_gael_gramadach = None  # type: ignore
+    _GRAMADACH_AVAILABLE = False
 
 
 gael_agent = LlmAgent(
     name="gael_agent",
-    model=config.litellm.resolve_model("ocr_vision", "media_descriptor"),
+    model=config.litellm.resolve_model("text_llm", "subject_agent"),
     description=(
         "Gaeilge (Irish) specialist agent for the NCCA Leaving "
         "Certificate and Junior Cycle curriculum. Bilingual EN + "
@@ -84,12 +68,38 @@ gael_agent = LlmAgent(
         "Is ag Gaeilge (Irish) thú. Tá tú ag obair ar son "
         "tuatha/ project. Déanann tú iarratais faoi "
         "Gaeilge don NCCA Leaving Certificate agus Junior Cycle. "
-        "Tá an dátheangachas EN + GA i bhfeidhm. Seolann tú "
-        "iarratais chuig na 5 huirlisí ábhair (syllabus_lookup / "
-        "past_paper_lookup / marking_scheme_lookup / "
-        "formative_item_generate / response_score) agus "
-        "scaoileann tú freagraí BAML de réir "
-        "`qpack_gaeilge.baml`."
+        "Tá an dátheangachas EN + GA i bhfeidhm (an t-aon ábhar a "
+        "choinníonn an dátheangachas — gach ábhar eile tá "
+        "Béarla amháin). Seolann tú iarratais chuig na 5 huirlisí "
+        "ábhair (syllabus_lookup / past_paper_lookup / "
+        "marking_scheme_lookup / formative_item_generate / "
+        "response_score) agus scaoileann tú freagraí BAML de "
+        "réir `qpack_gaeilge.baml`.\n\n"
+        "NA 5 HUIRLISÍ — CATAGÓIR:\n"
+        "- syllabus_lookup: 'cad a deir an syllabus faoi X' → "
+        "SyllabusChunk le foinse (source_pdf + source_page + "
+        "verbatim_text)\n"
+        "- past_paper_lookup: 'taispeáin ceisteanna ar X' → "
+        "ExamPaperChunk\n"
+        "- marking_scheme_lookup: 'conas a mharcáiltear X' → "
+        "MarkingCriterion\n"
+        "- formative_item_generate: fianaise (NÍ an cheist — "
+        "ghineann tú an cheist ón bhfianaise)\n"
+        "- response_score: fianaise marcála (NÍ an ghrád — "
+        "scóráil tú i gcoinne na fianaise)\n\n"
+        "EVIDENCE LADDER (G7): gach freagra uirlise iompraíonn "
+        "`provenance` (source_pdf + source_page + verbatim_text). "
+        "Mura bhfaigheann an t-áireamhán sraith, abair 'Gan chlúdach "
+        "do ghaeilge ar an iarratas sin' — ná haimsigh ábhar.\n\n"
+        "NCCA LO NUMBERING: LC-GA-LO-<snáithe>.<index> / "
+        "JC-GA-LO-<snáithe>.<index>. Nuair a dhéantar tagairt do "
+        "ábhair gan cód LO, cuir glaoch ar syllabus_lookup ar "
+        "dtús.\n\n"
+        "DEACRÚCHÁN: 1 = meabhair; 2 = céim amháin; 3 = 2-3 "
+        "chéimeanna; 4 = ilchéim; 5 = measúnú/cruthúnas.\n\n"
+        "TEANGA: Béarla amháin de ghnáth, ACH nuair a bhíonn "
+        "language='ga' agus ábhar='gaeilge', scaoileann tú an dá "
+        "teanga (EN + GA) le síneadh fada caomhnaithe."
     ),
     tools=[
         gael_syllabus_lookup_tool,

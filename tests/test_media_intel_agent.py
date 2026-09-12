@@ -8,12 +8,18 @@ from tuatha.agents.media_intel import (
 
 
 def test_10_tools_present():
-    assert len(TOOLS) == 10
+    # Per the 2026-08-27 change: 11 tools now (10 original +
+    # extract_xmen_descriptor Class F). The test name stays "10"
+    # for backwards-compat — the canonical count is 11.
+    assert len(TOOLS) == 11
 
 
 def test_5_extractor_tools():
+    # Per the 2026-08-27 change: 6 extractors now (5 original +
+    # extract_xmen_descriptor Class F). The test name stays "5"
+    # for backwards-compat — the canonical count is 6.
     extractors = [n for n in TOOL_NAMES if n.startswith("extract_")]
-    assert len(extractors) == 5
+    assert len(extractors) == 6
 
 
 def test_5_corpus_tools():

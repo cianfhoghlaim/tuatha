@@ -24,11 +24,7 @@ from google.adk.tools import FunctionTool
 from ..config import TuathaConfig
 from ..observability import trace_agent
 from ..routing import build_wire
-from ..tools.mathematics_formative_item_generate import generate_math_item
-from ..tools.mathematics_marking_scheme_lookup import lookup_math_marking_scheme
-from ..tools.mathematics_past_paper_lookup import lookup_math_paper
-from ..tools.mathematics_response_score import score_math_response
-from ..tools.mathematics_syllabus_lookup import lookup_math_lo
+from ..tools.corpus_tools import bind_subject_tools
 
 # Build the canonical SubjectAgentWiring for mathematics.
 _wire = build_wire(
@@ -45,12 +41,13 @@ _wire = build_wire(
 # MODEL_REGISTRY fallback).
 config = TuathaConfig.from_env()
 
-# The 5 per-subject tools.
-math_syllabus_lookup_tool = FunctionTool(func=lookup_math_lo)
-math_past_paper_lookup_tool = FunctionTool(func=lookup_math_paper)
-math_marking_scheme_lookup_tool = FunctionTool(func=lookup_math_marking_scheme)
-math_formative_item_generate_tool = FunctionTool(func=generate_math_item)
-math_response_score_tool = FunctionTool(func=score_math_response)
+# The 5 per-subject tools, bound via bind_subject_tools.
+_bound_tools = bind_subject_tools("mathematics")
+math_syllabus_lookup_tool = FunctionTool(func=_bound_tools[0])
+math_past_paper_lookup_tool = FunctionTool(func=_bound_tools[1])
+math_marking_scheme_lookup_tool = FunctionTool(func=_bound_tools[2])
+math_formative_item_generate_tool = FunctionTool(func=_bound_tools[3])
+math_response_score_tool = FunctionTool(func=_bound_tools[4])
 
 
 # Per-tool extraction wrappers emit the canonical
@@ -58,35 +55,15 @@ math_response_score_tool = FunctionTool(func=score_math_response)
 # delegate to the underlying tool function unchanged via
 # *args/**kwargs so they never break the existing function
 # signatures. The decorator is the only addition.
-@trace_agent("mathematics")
-async def _math_extract_syllabus(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_math_lo(*args, **kwargs)
 
 
-@trace_agent("mathematics")
-async def _math_extract_past_paper(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_math_paper(*args, **kwargs)
 
-
-@trace_agent("mathematics")
-async def _math_extract_marking_scheme(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_math_marking_scheme(*args, **kwargs)
-
-
-@trace_agent("mathematics")
-async def _math_extract_formative_item(*args: Any, **kwargs: Any) -> Any:
-    return await generate_math_item(*args, **kwargs)
-
-
-@trace_agent("mathematics")
-async def _math_extract_response_score(*args: Any, **kwargs: Any) -> Any:
-    return await score_math_response(*args, **kwargs)
 
 
 # The canonical ADK LlmAgent for the Mathematics subject.
 math_agent = LlmAgent(
     name="math_agent",
-    model=config.litellm.resolve_model("ocr_vision", "media_descriptor"),
+    model=config.litellm.resolve_model("text_llm", "subject_agent"),
     description=(
         "Mathematics specialist agent for the NCCA Leaving "
         "Certificate and Junior Cycle curriculum. Formative "
@@ -101,7 +78,36 @@ math_agent = LlmAgent(
         "tools (syllabus_lookup / past_paper_lookup / "
         "marking_scheme_lookup / formative_item_generate / "
         "response_score) and emit typed BAML responses per the "
-        "`qpack_mathematics.baml` contract."
+        "`qpack_mathematics.baml` contract.\n\n"
+        "THE 5 TOOLS — WHEN TO USE EACH:\n"
+        "- syllabus_lookup: 'what does the syllabus say about X' → "
+        "typed SyllabusChunk rows with provenance (source_pdf + "
+        "source_page + verbatim_text)\n"
+        "- past_paper_lookup: 'show me past paper questions on X' → "
+        "typed ExamPaperChunk rows\n"
+        "- marking_scheme_lookup: 'how is X graded' → typed "
+        "MarkingCriterion rows\n"
+        "- formative_item_generate: 'give me a practice question on "
+        "X' → grounding evidence (NOT the question — the agent "
+        "generates the question from the evidence)\n"
+        "- response_score: 'grade my answer' → marking-scheme "
+        "evidence (NOT a grade — the agent scores against the "
+        "evidence)\n\n"
+        "THE EVIDENCE LADDER (G7 CONTRACT): every tool response "
+        "carries `provenance` (source_pdf + source_page + "
+        "verbatim_text). If a tool returns zero rows, the response "
+        "MUST say 'No coverage for mathematics on that query' — "
+        "never invent content.\n\n"
+        "NCCA LO NUMBERING: Learning Outcomes follow "
+        "LC-MATHS-LO-<strand>.<index> (e.g., LC-MATHS-LO-2.4 = "
+        "complex numbers); Junior Cycle JC-MATHS-LO-<strand>.<index>. "
+        "When a query references a topic but not an LO code, first "
+        "call syllabus_lookup to identify the relevant LO code, "
+        "then route subsequent calls with that LO code.\n\n"
+        "DIFFICULTY CALIBRATION: 1 = recall (definitions, formulas); "
+        "2 = 1-step application; 3 = 2-3 step analysis; "
+        "4 = multi-step synthesis; 5 = evaluation/proof.\n\n"
+        "LANGUAGE: English only."
     ),
     tools=[
         math_syllabus_lookup_tool,

@@ -1,14 +1,28 @@
 // tuatha/baml/qpack_history.baml — canonical BAML contracts for the NCCA History subject.
+//
+// Rewritten 2026-08-27 to add the canonical prompt template:
+// - NCCA LO numbering scheme (LC-HIST-LO-<strand>.<index>)
+// - Bilingual invariant (English by default; gaeilge/irish keep bilingual)
+// - Difficulty 1-5 calibration
+// - Evidence_pdfs citation
+//
+// Routes through `MODEL_REGISTRY.resolve("text_llm", "subject_agent")`.
 
-client minimax
+client<llm> subject_agent {
+  provider "openai-generic"
+  base_url env.LITELLM_URL
+  api_key  env.LITELLM_API_KEY
+  model_name env.TEXT_MODEL_SUBJECT_AGENT
+}
 
 class HistorySyllabusTopic {
   ncca_code       string
   title_en        string
-  title_ga        string
+  title_ga        string?
   description_en  string
-  description_ga  string
-  level           string
+  description_ga  string?
+  level           string                          // "hl" | "ol" | "fl" | "jc"
+  strand          string?
   source_pdf      string
   source_page     int
   provenance_sha256 string
@@ -19,7 +33,16 @@ class HistoryPastPaper {
   level        string
   paper        int
   paper_url    string
+  questions    string[]?
+  lo_tags      string[]?
   provenance_sha256 string
+}
+
+class HistoryMarkingCriterion {
+  criterion_id     string
+  marks            float
+  band_description string
+  evidence_pdfs    string[]
 }
 
 class HistoryMarkingScheme {
@@ -27,7 +50,7 @@ class HistoryMarkingScheme {
   level         string
   year          int
   scheme_url    string
-  criteria      list<string>
+  criteria      HistoryMarkingCriterion[]
   provenance_sha256 string
 }
 
@@ -36,10 +59,11 @@ class HistoryFormativeItem {
   difficulty    int
   level         string
   topic         string
-  multiple_choice    string
-  short_answer       string
-  extended_response  string
-  evidence_pdfs        list<string>
+  prompt_en     string
+  prompt_ga     string?
+  expected_answer string
+  marking_scheme  HistoryMarkingCriterion[]
+  evidence_pdfs   string[]
 }
 
 class HistoryFormativeResponse {
@@ -47,9 +71,10 @@ class HistoryFormativeResponse {
   student_response  string
   grade             float
   feedback_en       string
-  feedback_ga       string
+  feedback_ga       string?
   badge_emitted     bool
-  rubric_evidence   list<string>
+  rubric_evidence   string[]
+  flagged_for_review bool
 }
 
 
@@ -59,12 +84,22 @@ function GenerateHistorySyllabus(
   language: string,
   pdf_pages: string,
 ) -> HistorySyllabusTopic {
-  client minimax
+  client subject_agent
   prompt #"
-    Generate the canonical History syllabus topic for LO code { lo_code }
-    at level { level } in language { language } from these PDF pages:
+    You are the canonical History syllabus topic generator for the
+    NCCA Leaving Certificate + Junior Cycle.
+
+    Target Learning Outcome: { lo_code }
+    Level: { level }
+    LANGUAGE: English only. The title_ga / description_ga fields are populated when language="ga" AND subject="gaeilge" (or irish); for {{ subject }}, English-only.
+
+    PDF pages (cite source_pdf + source_page in your evidence):
     { pdf_pages }
-    return a HistorySyllabusTopic.
+
+    NCCA LO NUMBERING: LC-HIST-LO-<strand>.<index>
+    Junior Cycle: JC-HIST-LO-<strand>.<index>
+
+    Return a HistorySyllabusTopic matching the schema.
   "#
 }
 
@@ -74,12 +109,21 @@ function GenerateHistoryPastPaper(
   paper: int,
   pdf_pages: string,
 ) -> HistoryPastPaper {
-  client minimax
+  client subject_agent
   prompt #"
-    Generate the canonical History past paper for year { year }
-    at level { level } paper { paper } from these PDF pages:
+    You are the canonical History past paper extractor.
+
+    Year: { year }, Level: { level }, Paper: { paper }.
+
+    PDF pages:
     { pdf_pages }
-    return a HistoryPastPaper.
+
+    For each question, tag with: topic + NCCA LO code
+    (LC-HIST-LO-<strand>.<index>).
+
+    LANGUAGE: English only.
+
+    Return a HistoryPastPaper matching the schema.
   "#
 }
 
@@ -89,12 +133,25 @@ function GenerateHistoryMarkingScheme(
   year: int,
   pdf_pages: string,
 ) -> HistoryMarkingScheme {
-  client minimax
+  client subject_agent
   prompt #"
-    Generate the canonical History marking scheme for LO code
-    { lo_code } at level { level } year { year } from these PDF pages:
+    You are the canonical History marking scheme generator.
+
+    Target Learning Outcome: { lo_code }
+    Level: { level }, Year: { year }.
+
+    PDF pages (cite source_pdf + source_page for each criterion):
     { pdf_pages }
-    return a HistoryMarkingScheme.
+
+    Per-criterion breakdown:
+    - criterion_id
+    - marks (float)
+    - band_description (what earns full / partial / zero marks)
+    - evidence_pdfs (source_pdf + source_page citations)
+
+    LANGUAGE: English only.
+
+    Return a HistoryMarkingScheme matching the schema.
   "#
 }
 
@@ -103,15 +160,46 @@ function GenerateHistoryFormativeItem(
   difficulty: int,
   level: string,
   topic: string,
+  marking_scheme: string,
+  prior_items: string[],
+  language: string,
   pdf_pages: string,
 ) -> HistoryFormativeItem {
-  client minimax
+  client subject_agent
   prompt #"
-    Generate the canonical History formative item for LO code
-    { lo_code } at difficulty { difficulty } at level { level } topic
-    { topic } from these PDF pages:
+    You are the canonical formative item generator for the NCCA
+    { level } History syllabus.
+
+    Target Learning Outcome: { lo_code } — "{ topic }"
+    Difficulty: { difficulty }/5
+      1 = recall (definitions, formulas)
+      2 = 1-step application
+      3 = 2-3 step analysis
+      4 = multi-step synthesis
+      5 = evaluation / proof / extended response
+
+    Available marking scheme (cite this):
+    { marking_scheme }
+
+    Prior items (avoid duplicating):
+    { prior_items }
+
+    PDF pages (cite source_pdf + source_page in your evidence_pdfs):
     { pdf_pages }
-    return a HistoryFormativeItem.
+
+    LANGUAGE: English only. The title_ga / description_ga fields are populated when language="ga" AND subject="gaeilge" (or irish); for {{ subject }}, English-only.
+
+    Generate the item in 4 PARTS:
+    1. PROMPT: a single self-contained question that can be
+       answered in 10-15 minutes.
+    2. EXPECTED ANSWER: a worked solution + the answer's
+       mark-bearing steps.
+    3. MARKING SCHEME: mirror the marking_scheme above; per-criterion
+       marks; cite source PDF + page.
+    4. EVIDENCE: every part MUST cite source_pdf + source_page
+       from the PDF pages.
+
+    Return a HistoryFormativeItem matching the schema.
   "#
 }
 
@@ -123,12 +211,27 @@ function ScoreHistoryFormativeResponse(
   hints_used: int,
   rubric_text: string,
 ) -> HistoryFormativeResponse {
-  client minimax
+  client subject_agent
   prompt #"
-    Score the History response for item_id { item_id } student_response
-    { student_response } in format { response_format } with time
-    { time_taken_seconds }s and hints { hints_used } against the rubric:
+    You are the canonical History response scorer.
+
+    item_id: { item_id }
+    student_response: { student_response }
+    format: { response_format }
+    time_taken: { time_taken_seconds }s
+    hints_used: { hints_used }
+
+    Rubric:
     { rubric_text }
-    return a HistoryFormativeResponse.
+
+    Apply the 4-STEP scoring:
+    1. CITE: identify which marking criteria are met.
+    2. BAND: assign marks per criterion.
+    3. SUMMARISE: total marks + feedback.
+    4. FLAG: set flagged_for_review=true if confidence < 0.7.
+
+    LANGUAGE: English only.
+
+    Return a HistoryFormativeResponse matching the schema.
   "#
 }

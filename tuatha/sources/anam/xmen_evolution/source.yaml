@@ -1,0 +1,150 @@
+# source.yaml — X-Men: Evolution (2000-2003, Marvel Animation) capture source.
+#
+# Per the tuatha skill: shippable=false invariant.
+# The full-resolution episode stills + frame samples are extracted into the
+# private Pangolin volume (s3://cianfhoghlaim-tuatha-raw/xmen/). No raw
+# animation frames ever enter the repo. The Lance fat table carries only
+# the BAML-extracted description (character, team, ability, power_class,
+# effect, color, motion) + a ≤1024px JPEG thumb.
+
+source:
+  id: xmen_evolution
+  kind: animation_native
+  display_name: "X-Men: Evolution (2000-2003, Marvel Animation / ABC Kids' WB)"
+  upstream_owner: Marvel Animation
+  rights_holder: Marvel Animation / Disney+
+  work: "X-Men: Evolution"
+  years: "2000-2003"
+  episode_count: 52
+
+shippable: false    # per the tuatha skill: never commit raw frames
+
+legal_notes: |
+  X-Men: Evolution is a copyrighted animated television series owned
+  by Marvel Animation (now part of Disney+). This source extracts
+  typed BAML descriptions (character, team, ability_name,
+  power_class, effect_text, color_hex, particle_motion) from
+  captured frames; the pixels never enter the repository. The
+  full capture stays in a Pangolin-private volume. Use of the
+  descriptions in the British Isles Formative Assessment MMO is
+  transformation + fair-use research; no animation frames or
+  character likenesses are copied verbatim into any shippable
+  asset.
+
+  Per the AGENTS.md "DO NOT" rule: never use "Wikipedia
+  Foundation" as rights_holder; use the original publisher of
+  the official document (here: "Marvel Animation / Disney+").
+
+ingest:
+  raw_bucket: s3://cianfhoghlaim-tuatha-raw/xmen
+  # X-Men scenes are captured via the Hermes Agent computer-use
+  # client (Phase-2 path; replaces the deprecated Swift daemon).
+  reader: tuatha/capture/hermes_client.py (HermesClient.start_run)
+  cadence: on_demand             # Operator invokes capture per scene
+  capture_path: hermes_agent     # unsloth.cianfhoghlaim.ie:8889
+
+extraction:
+  flow: tuatha_xmen_scenes
+  baml_function: ExtractXmenScene
+  vision_model: ${VISION_MODEL_XMEN}        # routed via MODEL_REGISTRY ocr_vision:xmen_scene
+  thumbnail_max_px: 1024
+  fts_columns: [effect_text, character, ability_name]
+  vector_columns: [embedding]
+
+character_roster: |
+  The full X-Men: Evolution (2000-2003) character roster is
+  embedded in the BAML `ExtractXmenScene` function prompt. The
+  canonical roster (30+ characters) covers:
+
+  X-MEN TEAM:
+    Cyclops (Scott Summers)            — optic blast (Alpha)
+    Jean Grey (Marvel Girl)            — telepathy + telekinesis (Omega)
+    Wolverine (Logan)                  — adamantium claws + healing (Beta)
+    Storm (Ororo Munroe)               — weather manipulation (Omega)
+    Rogue (Anna Marie)                 — power absorption via touch (Beta)
+    Beast (Hank McCoy)                 — superhuman agility + transformation (Beta)
+    Shadowcat (Kitty Pryde)            — intangibility / phasing (Beta)
+    Nightcrawler (Kurt Wagner)         — teleportation + stealth (Beta)
+    Spyke (Evan Daniels)               — spike protrusions + geo-leaping (Beta)
+
+  BROTHERHOOD OF MUTANTS:
+    Mystique (Raven Darkhölme)         — shapeshifting (Beta)
+    Toad (Mortimer Toynbee)            — tongue + wall-crawling (Beta)
+    Avalanche (Dominic Petros)         — seismic vibration (Beta)
+    Blob (Fred Dukes)                  — super-mass + immovability (Beta)
+    Pyro (St. John Allerdyce)          — fire manipulation (Beta)
+    Magneto (Erik Lehnsherr)           — magnetism (Omega)
+    Sabretooth (Victor Creed)          — claws + super senses (Beta)
+
+  XFACTOR (Season 2+):
+    Multiple Man (Jamie Madrox)        — duplication (Beta)
+    Polaris (Lorna Dane)               — magnetism (Beta)
+    Wolfsbane (Rahne Sinclair)         — lycanthropy transformation (Beta)
+    Forge                              — technopathy / machine creation (Beta)
+
+  INDEPENDENTS:
+    Professor X (Charles Xavier)       — telepathy (Omega)
+    Gambit (Remy LeBeau)               — kinetic charge + card throwing (Beta)
+    Scarlet Witch (cameo Season 2)     — reality warping (Omega)
+    Quicksilver (cameo Season 2)       — super-speed (Alpha)
+
+  See tuatha/baml/anam_xmen.baml::XMEN_ROSTER for the canonical
+  embedded prompt.
+
+celtic_deity_map: |
+  Per the ANAM cross-source join (see anam_particles.py):
+
+    Cyclops      → Taranis      (optic blast / sky-thunder)
+    Storm        → Manannán/Taranis (weather / sea + sky)
+    Jean Grey    → Danu         (telepathy / earth-mother)
+    Wolverine    → Cernunnos    (claws / wild-nature)
+    Rogue        → TheMorrígan  (absorption / battle-prophecy)
+    Beast        → Cernunnos    (transformation / wild-nature)
+    Mystique     → TheMorrígan  (shapeshift / battle-prophecy)
+    Gambit       → Taranis      (kinetic charge / sky-thunder)
+    Sabretooth   → Cernunnos    (claws / wild-nature)
+    Shadowcat    → Aengus       (phasing / youth)
+    Nightcrawler → TheMorrígan  (teleportation / stealth)
+    Magneto      → TheDagda     (magnetism / abundance)
+    Pyro         → Taranis      (fire / sky-thunder)
+    Avalanche    → TheDagda     (seismic / earth-abundance)
+    Blob         → TheDagda     (mass / earth-abundance)
+    Multiple Man → Ogma         (duplication / writing-elegance)
+    Polaris      → Taranis      (magnetism / sky-thunder)
+    Wolfsbane    → Cernunnos    (lycanthropy / wild-nature)
+    Forge        → Ogma         (technopathy / writing-elegance)
+    Professor X  → Ogma         (telepathy / writing-elegance)
+    Spyke        → Cernunnos    (spikes / wild-nature)
+
+observability:
+  langfuse: true
+  mlflow_experiment: tuatha-anam
+  ragas_metrics: [anam_color_anchor]
+  asset_check: ragas_anam_color_anchor
+
+outputs:
+  lance_table: cianfhoghlaim.tuatha.xmen.scenes
+  columns:
+    - scene_id        # PK
+    - character
+    - team
+    - ability_name
+    - power_class
+    - effect_text    # FTS
+    - color_hex
+    - particle_motion
+    - {episode, timestamp}
+    - {run_id, frame_index, captured_at}
+    - embedding      # 1024-d bge-m3
+    - thumb_blob     # ≤1024px JPEG
+
+phases:
+  phase_1: hermes_controlled    # Hermes Agent computer-use drives capture
+  phase_2: hermes_autonomous    # Hermes Agent drives capture + extraction
+
+related_specs:
+  - openspec/specs/cianfhoghlaim-educational-mmo/spec.md
+  - openspec/specs/tuatha-british-isles-mmo/spec.md
+  - openspec/specs/celtic-asset-generation/spec.md
+  - openspec/specs/centralized-model-registry/spec.md
+  - openspec/specs/dual-search-architecture/spec.md

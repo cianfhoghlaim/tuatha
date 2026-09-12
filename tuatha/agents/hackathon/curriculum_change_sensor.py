@@ -198,18 +198,20 @@ def _build_agent() -> Any:
         return None
     return LlmAgent(
         name="curriculum_change_sensor_agent",
-        model=config.litellm.resolve_model("text_llm", "default"),
+        model=config.litellm.resolve_model("text_llm", "hackathon_agent"),
         description=(
             "Curriculum Change Detection Sensor. Dagster sensor that "
-            "watches the NCCA + AQA + SQA + WJEC + CCEA + IoM websites "
-            "and fires the SequentialAgent on changes."
+            "watches the 6 canonical jurisdiction websites "
+            "{NCCA, AQA, SQA, WJEC, CCEA, IoM} and fires the "
+            "SequentialAgent on changes."
         ),
         instruction=(
             "You are the Curriculum Change Sensor. You watch the "
-            "6-jurisdiction curriculum websites for syllabus changes. "
-            "When a change is detected, you fire the SequentialAgent "
-            "to update the per-jurisdiction syllabus DLT sources + "
-            "the per-subject BAML contracts + the per-subject agents."
+            "6 canonical jurisdiction curriculum websites for syllabus "
+            "changes. When a change is detected, you fire the "
+            "SequentialAgent to update the per-jurisdiction syllabus "
+            "DLT sources + the per-subject BAML contracts + the "
+            "per-subject agents. LANGUAGE: English only."
         ),
         output_key="curriculum_change_sensor_response",
     )

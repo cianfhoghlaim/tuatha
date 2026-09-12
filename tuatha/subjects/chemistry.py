@@ -12,11 +12,7 @@ from google.adk.tools import FunctionTool
 from ..config import TuathaConfig
 from ..observability import trace_agent
 from ..routing import build_wire
-from ..tools.chemistry_formative_item_generate import generate_chem_item
-from ..tools.chemistry_marking_scheme_lookup import lookup_chem_marking_scheme
-from ..tools.chemistry_past_paper_lookup import lookup_chem_paper
-from ..tools.chemistry_response_score import score_chem_response
-from ..tools.chemistry_syllabus_lookup import lookup_chem_lo
+from ..tools.corpus_tools import bind_subject_tools
 
 _wire = build_wire(
     ncca_subject="chemistry",
@@ -30,11 +26,13 @@ _wire = build_wire(
 
 config = TuathaConfig.from_env()
 
-chem_syllabus_lookup_tool = FunctionTool(func=lookup_chem_lo)
-chem_past_paper_lookup_tool = FunctionTool(func=lookup_chem_paper)
-chem_marking_scheme_lookup_tool = FunctionTool(func=lookup_chem_marking_scheme)
-chem_formative_item_generate_tool = FunctionTool(func=generate_chem_item)
-chem_response_score_tool = FunctionTool(func=score_chem_response)
+# The 5 per-subject tools, bound via bind_subject_tools.
+_bound_tools = bind_subject_tools("chemistry")
+chem_syllabus_lookup_tool = FunctionTool(func=_bound_tools[0])
+chem_past_paper_lookup_tool = FunctionTool(func=_bound_tools[1])
+chem_marking_scheme_lookup_tool = FunctionTool(func=_bound_tools[2])
+chem_formative_item_generate_tool = FunctionTool(func=_bound_tools[3])
+chem_response_score_tool = FunctionTool(func=_bound_tools[4])
 
 
 # Per-tool extraction wrappers emit the canonical
@@ -42,34 +40,14 @@ chem_response_score_tool = FunctionTool(func=score_chem_response)
 # delegate to the underlying tool function unchanged via
 # *args/**kwargs so they never break the existing function
 # signatures. The decorator is the only addition.
-@trace_agent("chemistry")
-async def _chem_extract_syllabus(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_chem_lo(*args, **kwargs)
 
 
-@trace_agent("chemistry")
-async def _chem_extract_past_paper(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_chem_paper(*args, **kwargs)
 
-
-@trace_agent("chemistry")
-async def _chem_extract_marking_scheme(*args: Any, **kwargs: Any) -> Any:
-    return await lookup_chem_marking_scheme(*args, **kwargs)
-
-
-@trace_agent("chemistry")
-async def _chem_extract_formative_item(*args: Any, **kwargs: Any) -> Any:
-    return await generate_chem_item(*args, **kwargs)
-
-
-@trace_agent("chemistry")
-async def _chem_extract_response_score(*args: Any, **kwargs: Any) -> Any:
-    return await score_chem_response(*args, **kwargs)
 
 
 chem_agent = LlmAgent(
     name="chem_agent",
-    model=config.litellm.resolve_model("ocr_vision", "media_descriptor"),
+    model=config.litellm.resolve_model("text_llm", "subject_agent"),
     description=(
         "Chemistry specialist agent for the NCCA Leaving Certificate "
         "and Junior Cycle curriculum. Atomic structure, bonding, "
@@ -79,7 +57,24 @@ chem_agent = LlmAgent(
         "You are the Chemistry specialist agent for the new "
         "tuatha/ project. Route keyword-level traffic to your 5 "
         "per-subject tools and emit typed BAML responses per the "
-        "`qpack_chemistry.baml` contract."
+        "`qpack_chemistry.baml` contract.\n\n"
+        "THE 5 TOOLS — WHEN TO USE EACH:\n"
+        "- syllabus_lookup: typed SyllabusChunk rows with provenance\n"
+        "- past_paper_lookup: typed ExamPaperChunk rows\n"
+        "- marking_scheme_lookup: typed MarkingCriterion rows\n"
+        "- formative_item_generate: grounding evidence (the agent "
+        "generates the question from the evidence)\n"
+        "- response_score: marking-scheme evidence\n\n"
+        "EVIDENCE LADDER (G7): no response without provenance "
+        "(source_pdf + source_page + verbatim_text). If a tool "
+        "returns zero rows, say 'No coverage for chemistry on that "
+        "query' — never invent content.\n\n"
+        "NCCA LO NUMBERING: LC-CHEM-LO-<strand>.<index> / "
+        "JC-CHEM-LO-<strand>.<index>. When a query references a "
+        "topic but not an LO code, first call syllabus_lookup.\n\n"
+        "DIFFICULTY CALIBRATION: 1 = recall; 2 = 1-step; 3 = 2-3 "
+        "step; 4 = multi-step synthesis; 5 = evaluation/proof.\n\n"
+        "LANGUAGE: English only."
     ),
     tools=[
         chem_syllabus_lookup_tool,

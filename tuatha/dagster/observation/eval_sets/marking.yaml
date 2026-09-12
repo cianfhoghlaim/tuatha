@@ -1,0 +1,108 @@
+# Eval cases for the MarkingAccuracyTrajectoryEvaluator +
+# FeedbackQualityTrajectoryEvaluator.
+# 5 cases — one per NCCA grade band (HL1, HL3, HL5, OL3, OL7).
+
+eval_set_name: marking
+agent_module: tuatha.agents.hackathon.marking_grader
+trajectory_evaluators:
+  - tuatha.dagster.observation.eval_metrics.MarkingAccuracyTrajectoryEvaluator
+  - tuatha.dagster.observation.eval_metrics.FeedbackQualityTrajectoryEvaluator
+
+cases:
+  - case_name: markgrade_math_hl1_quadratic
+    input:
+      lo_code: "LC-MATHS-LO-2.4"
+      level: "hl"
+      student_response: "x = (-b ± √(b²-4ac)) / 2a — derived via completing the square from ax² + bx + c = 0"
+      rubric_text: |
+        Criterion 1: derive the quadratic formula (3 marks).
+        Criterion 2: identify the discriminant b²-4ac (2 marks).
+        Criterion 3: solve for x = (-b ± √D) / 2a (3 marks).
+    expected_trajectory:
+      - tool_name: MarkGrade
+        output:
+          student_response_id: "math-hl1-001"
+          lo_code: "LC-MATHS-LO-2.4"
+          total_marks: 8.0
+          max_marks: 8.0
+          band_code: "HL1"
+          per_criterion:
+            - criterion_id: "criterion-1"
+              marks_awarded: 3.0
+              marks_available: 3.0
+              evidence_source_pdfs: ["mathematics_LC_syllabus.pdf:42"]
+            - criterion_id: "criterion-2"
+              marks_awarded: 2.0
+              marks_available: 2.0
+              evidence_source_pdfs: ["mathematics_LC_syllabus.pdf:43"]
+            - criterion_id: "criterion-3"
+              marks_awarded: 3.0
+              marks_available: 3.0
+              evidence_source_pdfs: ["mathematics_LC_syllabus.pdf:44"]
+          feedback_en: "Excellent derivation of the quadratic formula. You correctly identified the discriminant and applied the ± notation. Next step: practice applying this to complex numbers (LO 2.5)."
+          feedback_ga: ""
+          confidence: 0.95
+          flagged_for_review: false
+    ground_truth:
+      band: "HL1"
+
+  - case_name: markgrade_chem_hl3_equilibrium
+    input:
+      lo_code: "LC-CHEM-LO-3.2"
+      level: "hl"
+      student_response: "At equilibrium, the forward and reverse reaction rates are equal. Kc = [products] / [reactants]."
+    expected_trajectory:
+      - tool_name: MarkGrade
+        output:
+          band_code: "HL3"
+          per_criterion:
+            - criterion_id: "criterion-1"
+              evidence_source_pdfs: ["chemistry_LC_syllabus.pdf:67"]
+          feedback_en: "Good explanation of equilibrium. You correctly stated the forward/reverse rate equality. Next step: derive the Kc expression for a specific reaction."
+    ground_truth:
+      band: "HL3"
+
+  - case_name: markgrade_math_hl5_calculus
+    input:
+      lo_code: "LC-MATHS-LO-5.1"
+      level: "hl"
+    expected_trajectory:
+      - tool_name: MarkGrade
+        output:
+          band_code: "HL5"
+          per_criterion:
+            - criterion_id: "criterion-1"
+              evidence_source_pdfs: ["mathematics_LC_syllabus.pdf:120"]
+          feedback_en: "Adequate application of differentiation. Consider practicing chain rule applications for composite functions."
+    ground_truth:
+      band: "HL5"
+
+  - case_name: markgrade_gaeilge_ol3_litreachas
+    input:
+      lo_code: "LC-GA-LO-3.1"
+      level: "ol"
+      language: "ga"
+      student_response: "Is maith an scríbhneoir é Máirtín Ó Cadhain. Tá a stíl gonta."
+    expected_trajectory:
+      - tool_name: MarkGrade
+        output:
+          band_code: "OL3"
+          feedback_en: "Good identification of Ó Cadhain's style."
+          feedback_ga: "Aitheantas maith ar stíl Uí Cadhain."
+    ground_truth:
+      band: "OL3"
+
+  - case_name: markgrade_english_ol7_poetry
+    input:
+      lo_code: "LC-ENGL-LO-7.2"
+      level: "ol"
+    expected_trajectory:
+      - tool_name: MarkGrade
+        output:
+          band_code: "OL7"
+          per_criterion:
+            - criterion_id: "criterion-1"
+              evidence_source_pdfs: ["english_LC_syllabus.pdf:88"]
+          feedback_en: "Limited analysis of Yeats' symbolism. Next step: practice close reading + annotate the imagery."
+    ground_truth:
+      band: "OL7"

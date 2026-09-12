@@ -58,28 +58,23 @@ class LiteLlmConfig:
 
         Per the centralized-registry contract: never hardcode
         a model string; route through model_for(family, role).
+
+        Per the 2026-08-27 KCG fix: removed the silent
+        coercion of unknown roles to `default` — unknown
+        (family, role) pairs now raise KeyError loudly so
+        callers must declare the role they actually want.
+        The 14 NCCA subject agents use
+        `resolve_model("text_llm", "subject_agent")`; the
+        4 BIEP hackathon agents use
+        `resolve_model("text_llm", "hackathon_agent")`;
+        the 3 educational agents use
+        `resolve_model("text_llm", "educational_agent")`.
+        The 1 media_intel agent uses
+        `resolve_model("ocr_vision", "media_descriptor")`
+        after the 2026-08-27 change promotes that role.
         """
         if model_for is not None:
-            # The OCR_VISION family only supports a few canonical
-            # roles (default / legacy / lightweight / primary /
-            # specialist). For roles that don't exist in the
-            # registry (e.g., 'media_descriptor'), fall back to
-            # the family default.
-            available_roles_for_ocr = {
-                "default",
-                "legacy",
-                "lightweight",
-                "primary",
-                "specialist",
-            }
-            actual_role = role
-            if family == "ocr_vision" and role not in available_roles_for_ocr:
-                actual_role = "default"
-            try:
-                return model_for(family, actual_role)
-            except KeyError:
-                # Final fallback: return the cianfhoghlaim-prefixed stub.
-                return f"cianfhoghlaim-{family}-{actual_role}"
+            return model_for(family, role)
         # Graceful fallback for unit tests in isolation.
         return f"cianfhoghlaim-{family}-{role}"
 
