@@ -151,18 +151,56 @@ class AnamColorAnchorTrajectoryEvaluator:
             )
 
         # Compute ΔE between source color and ANAM color.
-        # The actual ΔE math is in tuatha-clean/tuatha/dagster/anam.py:254
-        # (`measure_color_anchor`). Here we just check the structure.
+        # The actual ΔE math is in `tuatha.theming.color.delta_e` (CIE76).
         source_hex = extract_invocation.get("output", {}).get("color_hex", "")
         anam_hex = join_invocation.get("output", {}).get("anam_color_hex", "")
 
+        if not source_hex or not anam_hex:
+            return TrajectoryScore(
+                score=0.0,
+                threshold=self.threshold,
+                passed=False,
+                details={
+                    "error": "missing source_hex or anam_hex",
+                    "source_hex": source_hex,
+                    "anam_hex": anam_hex,
+                },
+            )
+
+        try:
+            from tuatha.theming.color import delta_e
+
+            actual_delta_e = delta_e(source_hex, anam_hex)
+        except (ValueError, ImportError) as exc:
+            return TrajectoryScore(
+                score=0.0,
+                threshold=self.threshold,
+                passed=False,
+                details={
+                    "error": f"delta_e computation failed: {exc}",
+                    "source_hex": source_hex,
+                    "anam_hex": anam_hex,
+                },
+            )
+
+        # Linear falloff: 1.0 at ΔE ≤ threshold, 0.0 at ΔE ≥ 50.
+        if actual_delta_e <= self._delta_e_threshold:
+            score = 1.0
+        elif actual_delta_e >= 50.0:
+            score = 0.0
+        else:
+            score = 1.0 - (actual_delta_e - self._delta_e_threshold) / (
+                50.0 - self._delta_e_threshold
+            )
+
         return TrajectoryScore(
-            score=1.0 if source_hex and anam_hex else 0.0,
+            score=score,
             threshold=self.threshold,
-            passed=bool(source_hex and anam_hex),
+            passed=actual_delta_e <= self._delta_e_threshold,
             details={
                 "source_hex": source_hex,
                 "anam_hex": anam_hex,
+                "delta_e": actual_delta_e,
                 "delta_e_threshold": self._delta_e_threshold,
             },
         )
