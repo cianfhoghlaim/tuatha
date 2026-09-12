@@ -323,8 +323,6 @@ tuatha/                              # the new independent repo
 │   ├── operator.py                     # the CianfhoghlaimOperator
 │   ├── cross_subject.py                # the cross-subject specialist
 │   ├── workflows.py                    # the 4 per-subject workflow handlers
-│   ├── callbacks/                      # the canonical callbacks
-│   ├── mcp_server/                     # the MCP server
 │   ├── subjects/                       # the 8 NCCA subject agents
 │   ├── tools/                          # the 40 per-subject tools
 │   ├── agents/

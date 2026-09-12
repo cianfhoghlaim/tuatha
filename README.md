@@ -97,8 +97,6 @@ tuatha/                              # GitHub: github.com/cianfhoghlaim/tuatha
 │   ├── contracts/                   # CredAnchor.sol + AchievementToken.sol + foundry + tests
 │   ├── asset_generation/            # the 6 real Python files (un-archived from cianfhoghlaim)
 │   ├── geospatial/                  # the 9 real files (LSOA / Data Zones / SOA / Small Areas)
-│   ├── callbacks/                   # citation + audit callbacks
-│   ├── mcp_server/                  # MCP server surface
 │   ├── ci/                          # Dagger pipeline
 │   ├── docs/                        # ARCHITECTURE + AGENT_REGISTRY + THEMING + BIOGRAPHY
 │   └── tests/                       # 4 test files (pytest)

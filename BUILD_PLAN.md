@@ -67,13 +67,6 @@ tuatha/
 │   ├── operator.py                       (the CianfhoghlaimOperator)
 │   ├── cross_subject.py                  (the cross-subject specialist)
 │   ├── workflows.py                      (the 4 per-subject workflow handlers: study_plan + exam_paper + marking_scheme + curriculum_change)
-│   ├── callbacks/                        (the canonical callbacks: citation, audit)
-│   │   ├── __init__.py
-│   │   └── citation_callbacks.py
-│   ├── mcp_server/                       (the MCP server surface)
-│   │   ├── __init__.py
-│   │   ├── __main__.py
-│   │   └── server.py
 │   ├── subjects/                         (the 14 subject agents: 8 NCCA + 6 NCCA-adjacent)
 │   │   ├── __init__.py                  (re-exports all 8 subject_agent LlmAgent instances)
 │   │   ├── mathematics.py
