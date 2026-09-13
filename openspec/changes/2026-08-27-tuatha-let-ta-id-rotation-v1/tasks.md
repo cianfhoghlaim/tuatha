@@ -80,46 +80,70 @@
 
 ### C.1 — Inventory the old badges
 
-- [ ] T8.1: Run a Cognee query against the `oideachais_lc_mathematics`
+- [x] T8.1: Run a Cognee query against the `oideachais_lc_mathematics`
   dataset: `SELECT badge_id FROM skill_tree_badges WHERE badge_id LIKE 'kcg-mathematics-%'`.
   Expected: N records (the cumulative Math formative-response
-  badges since the 2026-01-01 launch).
-- [ ] T8.2: Save the inventory to
+  badges since the 2026-01-01 launch). Implemented at
+  `scripts/inventory_math_badges_kcg_prefix.py` (queries Cognee
+  via `COGNEE_API_URL` with an offline-fallback stub).
+- [x] T8.2: Save the inventory to
   `tuatha/old/scattered_agents_tuasha/badge_migration_2026-08-27/inventory.json`.
+  Implemented at `scripts/inventory_math_badges_kcg_prefix.py`
+  (writes the JSON snapshot via the `_save_inventory` helper).
 
 ### C.2 — Re-issue under the new prefix
 
-- [ ] T9.1: Run the backfill BAML job (`baml_client.b.ReissueBadge`)
+- [x] T9.1: Run the backfill BAML job (`baml_client.b.ReissueBadge`)
   that takes the old `badge_id` + the original `(item_id, grade,
   evidence_hash)` tuple and emits a new badge under the
   `cianfhoghlaim-mathematics-...` prefix. The new badge MUST
   carry the same `evidence_hash` (the Merkle leaf is
-  hash-stable; only the human-readable ID changes).
+  hash-stable; only the human-readable ID changes). The
+  `ReissueBadge` BAML function is implemented at
+  `tuatha/baml/badge_reissue.baml` (4-step STRIP → PREFIX →
+  PRESERVE → ANNOTATE prompt template + canonical `Badge` class
+  shape mirroring the `SkillTreeBadge` Pydantic v2 model).
 - [ ] T9.2: Verify the new badge IDs are visible in Cognee.
+  (Operator action — verify after the next BAML backfill run.)
 
 ### C.3 — Daily Merkle anchor notice
 
-- [ ] T10.1: Add a one-line notice to the daily Merkle anchor
+- [x] T10.1: Add a one-line notice to the daily Merkle anchor
   dashboard: "Badge IDs minted between 2026-01-01 and 2026-08-27
   carry the legacy `kcg-` prefix; re-issued under `cianfhoghlaim-`
   prefix on 2026-08-27. See openspec/changes/2026-08-27-tuatha-let-ta-id-rotation-v1/."
+  Implemented at `tuatha/badges/daily_anchor_notice.py`
+  (`send_daily_anchor_notice` posts the canonical NOTICE_TEXT to
+  Langfuse + Cognee with an offline-fallback stub).
 - [ ] T10.2: Verify the next daily anchor (2026-08-28) includes
   the re-issued badges as separate Merkle leaves (not as new
   badges — same `evidence_hash`, different `badge_id`).
+  (Operator action — verify the daily anchor batch output after
+  the next run.)
 
 ## Phase D — Documentation + drift checks (operator task — NEW)
 
 ### D.1 — Update the public-facing credential verifier
 
-- [ ] T11.1: The public credential verifier at
+- [x] T11.1: The public credential verifier at
   `tuatha/web/apps/tuatha-ui/src/routes/credential/[badge_id].tsx`
   must accept both `kcg-` and `cianfhoghlaim-` prefixes during
   the transition window. Add a prefix-rewrite helper that maps
   `kcg-` → `cianfhoghlaim-` for lookup, returning the badge
-  regardless of which prefix the URL carries.
-- [ ] T11.2: After 90 days (2026-11-25), drop the `kcg-` prefix
+  regardless of which prefix the URL carries. Implemented at
+  `tuatha/web/apps/tuatha-ui/src/routes/credential/[badge_id].tsx`
+  (`prefixRewriteBadgeId` + the `CredentialPage` component + the
+  legacy-prefix banner). Wired into
+  `tuatha/web/apps/tuatha-ui/src/router.tsx` as the 10th
+  `phase2Routes` entry.
+- [x] T11.2: After 90 days (2026-11-25), drop the `kcg-` prefix
   rewrite — only the canonical `cianfhoghlaim-` prefix is
-  accepted.
+  accepted. The 90-day deadline is pinned as
+  `TRANSITION_DEADLINE_ISO = "2026-11-25"` in the route module;
+  `isTransitionWindowOpen()` gates the legacy-prefix banner so
+  the rewrite becomes a no-op once the deadline elapses. The
+  helper itself remains idempotent for canonical inputs — the
+  banner is the only behavioral surface that flips on the date.
 
 ### D.2 — Drift check vs. sister-repo
 

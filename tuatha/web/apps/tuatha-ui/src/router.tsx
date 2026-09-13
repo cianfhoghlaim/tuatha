@@ -23,12 +23,14 @@ import { Route as EnglishRoute } from "./routes/realm/english";
 import { Route as GaeilgeRoute } from "./routes/realm/gaeilge";
 import { Route as ComputerScienceRoute } from "./routes/realm/computer_science";
 import { Route as StudentMasteryRoute } from "./routes/student/[id]/mastery";
+import { Route as CredentialRoute } from "./routes/credential/[badge_id]";
 
 /**
- * The 9 new Phase 2 routes. The consuming router file (or the
- * generated `routeTree.gen.ts` produced by the TanStack Router
- * CLI from the file-based convention) imports these and adds
- * them to the route tree.
+ * The 9 new Phase 2 routes + the Phase 5 credential verification
+ * route. The consuming router file (or the generated
+ * `routeTree.gen.ts` produced by the TanStack Router CLI from the
+ * file-based convention) imports these and adds them to the route
+ * tree.
  */
 export const phase2Routes = [
   MathematicsRoute,
@@ -40,4 +42,5 @@ export const phase2Routes = [
   GaeilgeRoute,
   ComputerScienceRoute,
   StudentMasteryRoute,
+  CredentialRoute,
 ] as const;
