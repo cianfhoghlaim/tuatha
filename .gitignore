@@ -29,3 +29,8 @@ htmlcov/
 # Local
 .env
 .env.local
+
+# LanceDB local cache (do NOT commit — runtime embedding cache)
+data/lancedb/
+data/embeddings/
+data/.cache/
