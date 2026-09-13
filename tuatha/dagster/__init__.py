@@ -1,10 +1,14 @@
 """tuatha.dagster — the Dagster asset group surface.
 
-3 asset group modules:
-- per_subject.py (the 40 per-subject DLT sources)
-- educational.py (the 3 educational agents)
-- hackathon.py (the 4 BIEP hackathon features)
+- ``anam.py`` — the ANAM capture pipeline: three capture assets, three
+  embed assets, the cross-source join, and the ``ragas_anam_color_anchor``
+  asset check.
+- ``anam_observability.py`` — the Langfuse / MLflow / structlog wrappers
+  the ANAM assets are decorated with.
+- ``educational.py`` — the three educational agents.
+- ``hackathon.py`` — the four BIEP hackathon features.
 
-Per the 5-layer KCG Component Architecture (per the
-dagster-5-layer-component-architecture spec).
+``per_subject.py`` moved to ``old/education_ingestion/`` when corpus
+ingestion became cianfhoghlaim's responsibility. See
+``tuatha/corpus/CONTRACT.md``.
 """

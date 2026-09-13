@@ -43,3 +43,52 @@ run = "openspec validate 2026-08-25-tuatha-british-isles-mmo-consolidation-v1 --
 [tasks."tuatha:doctor"]
 description = "Boundary + hygiene gate: no cross-repo imports, no dangling mise task targets, licence coherent."
 run = "uv run python scripts/doctor.py"
+
+# ---------------------------------------------------------------------
+# ANAM capture — the gameplay/comic/emulator pipeline tuatha owns.
+#
+# These write the `cianfhoghlaim.tuatha.*` Lance tables. Reading the
+# education corpus is a separate concern; see tuatha/corpus/CONTRACT.md.
+# ---------------------------------------------------------------------
+
+[tasks."anam:doctor"]
+description = "Check the capture prerequisites: Screen Recording + Accessibility permissions, mGBA, and the CBZ reader."
+depends = ["tuatha:install"]
+run = "uv run python -m tuatha_capture.cli doctor"
+
+[tasks."anam:capture:build"]
+description = "Build the macOS ScreenCaptureKit capture daemon (requires macOS 15+ and Xcode 16+)."
+dir = "tuatha/capture/macos"
+run = "swift build -c release"
+
+[tasks."anam:capture:gba"]
+description = "Capture Golden Sun frames headlessly from your own ROM + save state via mGBA."
+depends = ["tuatha:install"]
+run = "uv run python -m tuatha_capture.cli gba"
+
+[tasks."anam:capture:comic"]
+description = "Ingest CBZ comic pages, detect panels, and extract the dominant palette."
+depends = ["tuatha:install"]
+run = "uv run python -m tuatha_capture.cli comic"
+
+[tasks."anam:update:hades"]
+description = "Run the tuatha_hades_boons CocoIndex App -> cianfhoghlaim.tuatha.hades.boons"
+run = "cocoindex update tuatha_hades_boons"
+
+[tasks."anam:update:comic"]
+description = "Run the tuatha_comic_particles CocoIndex App -> cianfhoghlaim.tuatha.comic.particles"
+run = "cocoindex update tuatha_comic_particles"
+
+[tasks."anam:update:gba"]
+description = "Run the tuatha_gba_magic CocoIndex App -> cianfhoghlaim.tuatha.gba.magic"
+run = "cocoindex update tuatha_gba_magic"
+
+[tasks."anam:update:join"]
+description = "Run the tuatha_anam_particles cross-source join -> cianfhoghlaim.tuatha.anam_particles"
+depends = ["anam:update:hades", "anam:update:comic", "anam:update:gba"]
+run = "cocoindex update tuatha_anam_particles"
+
+[tasks."anam:notebook"]
+description = "Open the 4-tab marimo ANAM design surface (sources / boons / particles / join)."
+depends = ["tuatha:install"]
+run = "uv run marimo edit tuatha/notebooks/anam_dashboard.py"

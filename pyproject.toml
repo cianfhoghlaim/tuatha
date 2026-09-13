@@ -156,9 +156,10 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101", "E402"]
-# marimo generates its cells as `def __(...)`. Renaming them breaks the
-# notebook format, so the naming rule does not apply here.
-"tuatha/notebooks/*" = ["N807"]
+# marimo generates its cells as `def __(...)`, and a bare expression on
+# the last line of a cell is how a cell renders its output. Both read as
+# defects to ruff and are required by the notebook format.
+"tuatha/notebooks/*" = ["N807", "B018"]
 # UP042 wants `StrEnum` instead of `(str, Enum)`. That changes what
 # `str(Member)` returns, and these enums are serialised into credential
 # records — a silent format change in the badge ledger is not worth a
