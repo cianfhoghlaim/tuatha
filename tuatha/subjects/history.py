@@ -26,13 +26,11 @@ _wire = build_wire(
 
 config = TuathaConfig.from_env()
 
-# The 5 per-subject tools, bound via bind_subject_tools.
+# The 5 per-subject tools, bound via bind_subject_tools. The
+# underlying functions are wrapped below with ``@trace_agent``
+# so every BAML call site emits the canonical
+# ``agent.history.extract`` Langfuse trace.
 _bound_tools = bind_subject_tools("history")
-hist_syllabus_lookup_tool = FunctionTool(func=_bound_tools[0])
-hist_past_paper_lookup_tool = FunctionTool(func=_bound_tools[1])
-hist_marking_scheme_lookup_tool = FunctionTool(func=_bound_tools[2])
-hist_formative_item_generate_tool = FunctionTool(func=_bound_tools[3])
-hist_response_score_tool = FunctionTool(func=_bound_tools[4])
 
 
 # Per-tool extraction wrappers emit the canonical
@@ -40,6 +38,43 @@ hist_response_score_tool = FunctionTool(func=_bound_tools[4])
 # delegate to the underlying tool function unchanged via
 # *args/**kwargs so they never break the existing function
 # signatures. The decorator is the only addition.
+
+
+@trace_agent("history")
+async def _hist_syllabus_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for history syllabus lookup."""
+    return await _bound_tools[0](*args, **kwargs)
+
+
+@trace_agent("history")
+async def _hist_past_paper_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for history past-paper lookup."""
+    return await _bound_tools[1](*args, **kwargs)
+
+
+@trace_agent("history")
+async def _hist_marking_scheme_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for history marking-scheme lookup."""
+    return await _bound_tools[2](*args, **kwargs)
+
+
+@trace_agent("history")
+async def _hist_formative_item_generate(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for history formative item generation."""
+    return await _bound_tools[3](*args, **kwargs)
+
+
+@trace_agent("history")
+async def _hist_response_score(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for history response scoring."""
+    return await _bound_tools[4](*args, **kwargs)
+
+
+hist_syllabus_lookup_tool = FunctionTool(func=_hist_syllabus_lookup)
+hist_past_paper_lookup_tool = FunctionTool(func=_hist_past_paper_lookup)
+hist_marking_scheme_lookup_tool = FunctionTool(func=_hist_marking_scheme_lookup)
+hist_formative_item_generate_tool = FunctionTool(func=_hist_formative_item_generate)
+hist_response_score_tool = FunctionTool(func=_hist_response_score)
 
 
 

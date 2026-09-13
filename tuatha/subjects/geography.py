@@ -26,13 +26,11 @@ _wire = build_wire(
 
 config = TuathaConfig.from_env()
 
-# The 5 per-subject tools, bound via bind_subject_tools.
+# The 5 per-subject tools, bound via bind_subject_tools. The
+# underlying functions are wrapped below with ``@trace_agent``
+# so every BAML call site emits the canonical
+# ``agent.geography.extract`` Langfuse trace.
 _bound_tools = bind_subject_tools("geography")
-geog_syllabus_lookup_tool = FunctionTool(func=_bound_tools[0])
-geog_past_paper_lookup_tool = FunctionTool(func=_bound_tools[1])
-geog_marking_scheme_lookup_tool = FunctionTool(func=_bound_tools[2])
-geog_formative_item_generate_tool = FunctionTool(func=_bound_tools[3])
-geog_response_score_tool = FunctionTool(func=_bound_tools[4])
 
 
 # Per-tool extraction wrappers emit the canonical
@@ -40,6 +38,43 @@ geog_response_score_tool = FunctionTool(func=_bound_tools[4])
 # delegate to the underlying tool function unchanged via
 # *args/**kwargs so they never break the existing function
 # signatures. The decorator is the only addition.
+
+
+@trace_agent("geography")
+async def _geog_syllabus_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for geography syllabus lookup."""
+    return await _bound_tools[0](*args, **kwargs)
+
+
+@trace_agent("geography")
+async def _geog_past_paper_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for geography past-paper lookup."""
+    return await _bound_tools[1](*args, **kwargs)
+
+
+@trace_agent("geography")
+async def _geog_marking_scheme_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for geography marking-scheme lookup."""
+    return await _bound_tools[2](*args, **kwargs)
+
+
+@trace_agent("geography")
+async def _geog_formative_item_generate(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for geography formative item generation."""
+    return await _bound_tools[3](*args, **kwargs)
+
+
+@trace_agent("geography")
+async def _geog_response_score(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for geography response scoring."""
+    return await _bound_tools[4](*args, **kwargs)
+
+
+geog_syllabus_lookup_tool = FunctionTool(func=_geog_syllabus_lookup)
+geog_past_paper_lookup_tool = FunctionTool(func=_geog_past_paper_lookup)
+geog_marking_scheme_lookup_tool = FunctionTool(func=_geog_marking_scheme_lookup)
+geog_formative_item_generate_tool = FunctionTool(func=_geog_formative_item_generate)
+geog_response_score_tool = FunctionTool(func=_geog_response_score)
 
 
 

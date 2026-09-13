@@ -18,10 +18,13 @@ Per the 2026-08-27 change:
 """
 from __future__ import annotations
 
+from typing import Any
+
 from google.adk.agents import LlmAgent
 from google.adk.tools import FunctionTool
 
 from ..config import TuathaConfig
+from ..observability import trace_agent
 from ..routing import build_wire
 from ..tools.corpus_tools import bind_subject_tools
 
@@ -37,13 +40,55 @@ _wire = build_wire(
 
 config = TuathaConfig.from_env()
 
-# The 5 per-subject tools, bound via bind_subject_tools.
+# The 5 per-subject tools, bound via bind_subject_tools. The
+# underlying functions are wrapped below with ``@trace_agent``
+# so every BAML call site emits the canonical
+# ``agent.gaeilge.extract`` Langfuse trace.
 _bound_tools = bind_subject_tools("gaeilge")
-gael_syllabus_lookup_tool = FunctionTool(func=_bound_tools[0])
-gael_past_paper_lookup_tool = FunctionTool(func=_bound_tools[1])
-gael_marking_scheme_lookup_tool = FunctionTool(func=_bound_tools[2])
-gael_formative_item_generate_tool = FunctionTool(func=_bound_tools[3])
-gael_response_score_tool = FunctionTool(func=_bound_tools[4])
+
+
+# Per-tool extraction wrappers emit the canonical
+# `agent.gaeilge.extract` Langfuse trace. The wrappers
+# delegate to the underlying tool function unchanged via
+# *args/**kwargs so they never break the existing function
+# signatures. The decorator is the only addition.
+
+
+@trace_agent("gaeilge")
+async def _gael_syllabus_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for gaeilge syllabus lookup."""
+    return await _bound_tools[0](*args, **kwargs)
+
+
+@trace_agent("gaeilge")
+async def _gael_past_paper_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for gaeilge past-paper lookup."""
+    return await _bound_tools[1](*args, **kwargs)
+
+
+@trace_agent("gaeilge")
+async def _gael_marking_scheme_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for gaeilge marking-scheme lookup."""
+    return await _bound_tools[2](*args, **kwargs)
+
+
+@trace_agent("gaeilge")
+async def _gael_formative_item_generate(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for gaeilge formative item generation."""
+    return await _bound_tools[3](*args, **kwargs)
+
+
+@trace_agent("gaeilge")
+async def _gael_response_score(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for gaeilge response scoring."""
+    return await _bound_tools[4](*args, **kwargs)
+
+
+gael_syllabus_lookup_tool = FunctionTool(func=_gael_syllabus_lookup)
+gael_past_paper_lookup_tool = FunctionTool(func=_gael_past_paper_lookup)
+gael_marking_scheme_lookup_tool = FunctionTool(func=_gael_marking_scheme_lookup)
+gael_formative_item_generate_tool = FunctionTool(func=_gael_formative_item_generate)
+gael_response_score_tool = FunctionTool(func=_gael_response_score)
 
 
 # The 6th tool for gaeilge: the grammardóir reviewer.

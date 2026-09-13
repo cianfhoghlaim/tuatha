@@ -41,13 +41,11 @@ _wire = build_wire(
 # MODEL_REGISTRY fallback).
 config = TuathaConfig.from_env()
 
-# The 5 per-subject tools, bound via bind_subject_tools.
+# The 5 per-subject tools, bound via bind_subject_tools. The
+# underlying functions are wrapped below with ``@trace_agent``
+# so every BAML call site emits the canonical
+# ``agent.mathematics.extract`` Langfuse trace.
 _bound_tools = bind_subject_tools("mathematics")
-math_syllabus_lookup_tool = FunctionTool(func=_bound_tools[0])
-math_past_paper_lookup_tool = FunctionTool(func=_bound_tools[1])
-math_marking_scheme_lookup_tool = FunctionTool(func=_bound_tools[2])
-math_formative_item_generate_tool = FunctionTool(func=_bound_tools[3])
-math_response_score_tool = FunctionTool(func=_bound_tools[4])
 
 
 # Per-tool extraction wrappers emit the canonical
@@ -55,6 +53,43 @@ math_response_score_tool = FunctionTool(func=_bound_tools[4])
 # delegate to the underlying tool function unchanged via
 # *args/**kwargs so they never break the existing function
 # signatures. The decorator is the only addition.
+
+
+@trace_agent("mathematics")
+async def _math_syllabus_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for mathematics syllabus lookup."""
+    return await _bound_tools[0](*args, **kwargs)
+
+
+@trace_agent("mathematics")
+async def _math_past_paper_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for mathematics past-paper lookup."""
+    return await _bound_tools[1](*args, **kwargs)
+
+
+@trace_agent("mathematics")
+async def _math_marking_scheme_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for mathematics marking-scheme lookup."""
+    return await _bound_tools[2](*args, **kwargs)
+
+
+@trace_agent("mathematics")
+async def _math_formative_item_generate(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for mathematics formative item generation."""
+    return await _bound_tools[3](*args, **kwargs)
+
+
+@trace_agent("mathematics")
+async def _math_response_score(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for mathematics response scoring."""
+    return await _bound_tools[4](*args, **kwargs)
+
+
+math_syllabus_lookup_tool = FunctionTool(func=_math_syllabus_lookup)
+math_past_paper_lookup_tool = FunctionTool(func=_math_past_paper_lookup)
+math_marking_scheme_lookup_tool = FunctionTool(func=_math_marking_scheme_lookup)
+math_formative_item_generate_tool = FunctionTool(func=_math_formative_item_generate)
+math_response_score_tool = FunctionTool(func=_math_response_score)
 
 
 

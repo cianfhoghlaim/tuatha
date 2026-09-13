@@ -27,13 +27,11 @@ _wire = build_wire(
 
 config = TuathaConfig.from_env()
 
-# The 5 per-subject tools, bound via bind_subject_tools.
+# The 5 per-subject tools, bound via bind_subject_tools. The
+# underlying functions are wrapped below with ``@trace_agent``
+# so every BAML call site emits the canonical
+# ``agent.applied_mathematics.extract`` Langfuse trace.
 _bound_tools = bind_subject_tools("applied_mathematics")
-appm_syllabus_lookup_tool = FunctionTool(func=_bound_tools[0])
-appm_past_paper_lookup_tool = FunctionTool(func=_bound_tools[1])
-appm_marking_scheme_lookup_tool = FunctionTool(func=_bound_tools[2])
-appm_formative_item_generate_tool = FunctionTool(func=_bound_tools[3])
-appm_response_score_tool = FunctionTool(func=_bound_tools[4])
 
 
 # Per-tool extraction wrappers emit the canonical
@@ -41,6 +39,43 @@ appm_response_score_tool = FunctionTool(func=_bound_tools[4])
 # delegate to the underlying tool function unchanged via
 # *args/**kwargs so they never break the existing function
 # signatures. The decorator is the only addition.
+
+
+@trace_agent("applied_mathematics")
+async def _appm_syllabus_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for applied_mathematics syllabus lookup."""
+    return await _bound_tools[0](*args, **kwargs)
+
+
+@trace_agent("applied_mathematics")
+async def _appm_past_paper_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for applied_mathematics past-paper lookup."""
+    return await _bound_tools[1](*args, **kwargs)
+
+
+@trace_agent("applied_mathematics")
+async def _appm_marking_scheme_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for applied_mathematics marking-scheme lookup."""
+    return await _bound_tools[2](*args, **kwargs)
+
+
+@trace_agent("applied_mathematics")
+async def _appm_formative_item_generate(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for applied_mathematics formative item generation."""
+    return await _bound_tools[3](*args, **kwargs)
+
+
+@trace_agent("applied_mathematics")
+async def _appm_response_score(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for applied_mathematics response scoring."""
+    return await _bound_tools[4](*args, **kwargs)
+
+
+appm_syllabus_lookup_tool = FunctionTool(func=_appm_syllabus_lookup)
+appm_past_paper_lookup_tool = FunctionTool(func=_appm_past_paper_lookup)
+appm_marking_scheme_lookup_tool = FunctionTool(func=_appm_marking_scheme_lookup)
+appm_formative_item_generate_tool = FunctionTool(func=_appm_formative_item_generate)
+appm_response_score_tool = FunctionTool(func=_appm_response_score)
 
 
 

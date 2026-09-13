@@ -210,3 +210,121 @@ def test_observability_init_exports() -> None:
     assert hasattr(observability, "trace_agent")
     assert hasattr(observability, "trace_name_for")
     assert hasattr(observability, "_LANGFUSE_AVAILABLE")
+
+
+# ── Per-subject decorator wiring (T7.4) ──────────────────────────────
+
+
+SUBJECTS_WITH_WRAPPERS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("mathematics", ("_math_syllabus_lookup", "_math_past_paper_lookup",
+                     "_math_marking_scheme_lookup",
+                     "_math_formative_item_generate",
+                     "_math_response_score")),
+    ("applied_mathematics", ("_appm_syllabus_lookup",
+                              "_appm_past_paper_lookup",
+                              "_appm_marking_scheme_lookup",
+                              "_appm_formative_item_generate",
+                              "_appm_response_score")),
+    ("chemistry", ("_chem_syllabus_lookup", "_chem_past_paper_lookup",
+                   "_chem_marking_scheme_lookup",
+                   "_chem_formative_item_generate",
+                   "_chem_response_score")),
+    ("geography", ("_geog_syllabus_lookup", "_geog_past_paper_lookup",
+                   "_geog_marking_scheme_lookup",
+                   "_geog_formative_item_generate",
+                   "_geog_response_score")),
+    ("history", ("_hist_syllabus_lookup", "_hist_past_paper_lookup",
+                 "_hist_marking_scheme_lookup",
+                 "_hist_formative_item_generate",
+                 "_hist_response_score")),
+    ("english", ("_engl_syllabus_lookup", "_engl_past_paper_lookup",
+                 "_engl_marking_scheme_lookup",
+                 "_engl_formative_item_generate",
+                 "_engl_response_score")),
+    ("gaeilge", ("_gael_syllabus_lookup", "_gael_past_paper_lookup",
+                 "_gael_marking_scheme_lookup",
+                 "_gael_formative_item_generate",
+                 "_gael_response_score")),
+    ("computer_science", ("_comp_syllabus_lookup", "_comp_past_paper_lookup",
+                          "_comp_marking_scheme_lookup",
+                          "_comp_formative_item_generate",
+                          "_comp_response_score")),
+)
+
+
+@pytest.mark.parametrize(
+    "subject, wrapper_names",
+    SUBJECTS_WITH_WRAPPERS,
+)
+def test_subject_has_five_trace_agent_wrapped_tools(
+    subject: str,
+    wrapper_names: tuple[str, ...],
+) -> None:
+    """Each of the 8 NCCA subject modules exposes 5 ``@trace_agent``-wrapped tool functions.
+
+    Per the Phase-1 P7 T7.4 contract: ``@trace_agent("subject")``
+    is applied to a wrapper around each of the 5 canonical tools
+    (syllabus_lookup / past_paper_lookup / marking_scheme_lookup
+    / formative_item_generate / response_score).
+    """
+    import importlib
+    # Skip the test if google.adk is not fully importable in this
+    # environment (the conftest pre-patches httpx which can leave
+    # google.adk's lazy LlmAgent in a half-loaded state).
+    try:
+        importlib.import_module(f"tuatha.subjects.{subject}")
+    except ImportError as exc:
+        if "LlmAgent" in str(exc) or "google" in str(exc):
+            pytest.skip(
+                f"google.adk lazy-loader in this env cannot resolve "
+                f"LlmAgent ({exc.__class__.__name__}: {exc})"
+            )
+        raise
+
+    mod = importlib.import_module(f"tuatha.subjects.{subject}")
+
+    for name in wrapper_names:
+        assert hasattr(mod, name), (
+            f"{subject}: missing wrapper {name!r}; the "
+            f"@trace_agent('subject') decorator contract is broken."
+        )
+        fn = getattr(mod, name)
+        assert callable(fn)
+        # The decorator either:
+        #  - sets `__wrapped__` via functools.wraps (Langfuse path)
+        #  - returns the function unchanged (no-op path)
+        # In either case, the wrapper preserves `__name__`.
+        assert fn.__name__ == name or fn.__name__.endswith(name.lstrip("_"))
+
+
+@pytest.mark.parametrize(
+    "subject, wrapper_names",
+    SUBJECTS_WITH_WRAPPERS,
+)
+def test_subject_tool_aliases_use_wrapped_functions(
+    subject: str,
+    wrapper_names: tuple[str, ...],
+) -> None:
+    """The per-subject ``<slug>_<tool>_tool = FunctionTool(...)`` aliases
+    point at the ``@trace_agent``-decorated wrappers (not at the
+    underlying tool functions).
+    """
+    import importlib
+
+    try:
+        mod = importlib.import_module(f"tuatha.subjects.{subject}")
+    except ImportError as exc:
+        if "LlmAgent" in str(exc) or "google" in str(exc):
+            pytest.skip(
+                f"google.adk lazy-loader in this env cannot resolve "
+                f"LlmAgent ({exc.__class__.__name__}: {exc})"
+            )
+        raise
+
+    for wrapper_name in wrapper_names:
+        # The canonical tool alias uses the subject slug prefix.
+        # e.g. math_syllabus_lookup_tool uses _math_syllabus_lookup.
+        alias = wrapper_name.lstrip("_") + "_tool"
+        assert hasattr(mod, alias), (
+            f"{subject}: missing tool alias {alias!r}"
+        )

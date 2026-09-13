@@ -26,13 +26,11 @@ _wire = build_wire(
 
 config = TuathaConfig.from_env()
 
-# The 5 per-subject tools, bound via bind_subject_tools.
+# The 5 per-subject tools, bound via bind_subject_tools. The
+# underlying functions are wrapped below with ``@trace_agent``
+# so every BAML call site emits the canonical
+# ``agent.computer_science.extract`` Langfuse trace.
 _bound_tools = bind_subject_tools("computer_science")
-comp_syllabus_lookup_tool = FunctionTool(func=_bound_tools[0])
-comp_past_paper_lookup_tool = FunctionTool(func=_bound_tools[1])
-comp_marking_scheme_lookup_tool = FunctionTool(func=_bound_tools[2])
-comp_formative_item_generate_tool = FunctionTool(func=_bound_tools[3])
-comp_response_score_tool = FunctionTool(func=_bound_tools[4])
 
 
 # Per-tool extraction wrappers emit the canonical
@@ -40,6 +38,43 @@ comp_response_score_tool = FunctionTool(func=_bound_tools[4])
 # delegate to the underlying tool function unchanged via
 # *args/**kwargs so they never break the existing function
 # signatures. The decorator is the only addition.
+
+
+@trace_agent("computer_science")
+async def _comp_syllabus_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for computer_science syllabus lookup."""
+    return await _bound_tools[0](*args, **kwargs)
+
+
+@trace_agent("computer_science")
+async def _comp_past_paper_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for computer_science past-paper lookup."""
+    return await _bound_tools[1](*args, **kwargs)
+
+
+@trace_agent("computer_science")
+async def _comp_marking_scheme_lookup(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for computer_science marking-scheme lookup."""
+    return await _bound_tools[2](*args, **kwargs)
+
+
+@trace_agent("computer_science")
+async def _comp_formative_item_generate(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for computer_science formative item generation."""
+    return await _bound_tools[3](*args, **kwargs)
+
+
+@trace_agent("computer_science")
+async def _comp_response_score(*args: Any, **kwargs: Any) -> Any:
+    """``@trace_agent``-decorated wrapper for computer_science response scoring."""
+    return await _bound_tools[4](*args, **kwargs)
+
+
+comp_syllabus_lookup_tool = FunctionTool(func=_comp_syllabus_lookup)
+comp_past_paper_lookup_tool = FunctionTool(func=_comp_past_paper_lookup)
+comp_marking_scheme_lookup_tool = FunctionTool(func=_comp_marking_scheme_lookup)
+comp_formative_item_generate_tool = FunctionTool(func=_comp_formative_item_generate)
+comp_response_score_tool = FunctionTool(func=_comp_response_score)
 
 
 
